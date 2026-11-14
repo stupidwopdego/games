@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="WonderWheel" />
+  <title>WonderWheel — Word Discovery</title>
+  <style>
+    :root {
+      --bg: #F7F5EF;
+      --card: #FFFFFF;
+      --soft: #ECE8DF;
+      --ink: #1E293B;
+      --muted: #64748B;
+      --accent: #1E7A63;
+      --accent-soft: rgba(30, 122, 99, 0.14);
+      --orange: #D97706;
+      --blue: #2563EB;
+      --shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "Segoe UI", Roboto, sans-serif;
+      overscroll-behavior: none;
+    }
+
+    .app {
+      max-width: 500px;
+      margin: 0 auto;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: max(12px, env(safe-area-inset-top)) 14px max(12px, env(safe-area-inset-bottom));
+      gap: 10px;
+    }
+
+    /* Top Bar */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .pill-btn {
+      border: none;
+      background: var(--card);
+      color: var(--ink);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      cursor: pointer;
+    }
+    .pill-btn:active { transform: scale(0.96); }
+
+    .star-pill {
+      background: var(--card);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    /* Category Row */
+    .cat-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .cat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 13px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .fact-chip {
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      padding: 7px 13px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .skip-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+      padding: 6px 8px;
+      cursor: pointer;
+    }
+
+    /* Clue Card */
+    .clue-box {
+      background: var(--card);
+      border-left: 4px solid var(--accent);
+      border-radius: 14px;
+      padding: 10px 13px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      animation: fadeSlide 0.2s ease;
+    }
+    .clue-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 2px;
+    }
+    .clue-text {
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    /* Word Board */
+    .board-scroll {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 2px 0;
+    }
+
+    .featured-card {
+      background: var(--accent-soft);
+      border: 2px solid var(--accent);
+      border-radius: 16px;
+      padding: 10px 10px 12px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .featured-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      color: var(--accent);
+      margin-bottom: 7px;
+      text-transform: uppercase;
+    }
+
+    .sub-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .sub-card {
+      background: var(--card);
+      border-radius: 13px;
+      padding: 8px 6px;
+      display: flex;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+    .sub-card.active-clue {
+      border-color: var(--accent);
+    }
+
+    .tiles-row {
+      display: inline-flex;
+      gap: 4px;
+      justify-content: center;
+      flex-wrap: nowrap;
+    }
+
+    .tile {
+      width: 28px;
+      height: 32px;
+      border-radius: 7px;
+      background: var(--bg);
+      border: 1.5px solid #CBD5E1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--accent);
+      transition: transform 0.25s ease, background 0.25s ease;
+    }
+    .featured-card .tile {
+      width: 34px;
+      height: 38px;
+      font-size: 20px;
+      background: #FFFFFF;
+    }
+    .featured-card.long-word .tile {
+      width: 31px;
+      height: 35px;
+      font-size: 18px;
+    }
+    .tile.solved {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #FFFFFF;
+      transform: scale(1.04);
+    }
+    .tile.hinted {
+      background: #FFFBEB;
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+
+    /* Word Preview & Banner */
+    .preview-area {
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .helper-hint {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .preview-pill {
+      background: var(--card);
+      border-radius: 999px;
+      padding: 5px 10px 5px 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    .preview-letters {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--ink);
+    }
+
+    .mini-circle-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: var(--soft);
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .check-btn {
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .banner-pill {
+      padding: 8px 18px;
+      border-radius: 999px;
+      color: #fff;
+      font-weight: 800;
+      font-size: 16px;
+      background: var(--accent);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      animation: popIn 0.2s ease;
+    }
+    .banner-pill.warn { background: var(--orange); }
+
+    /* Letter Wheel */
+    .wheel-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2px 0;
+    }
+
+    .wheel {
+      position: relative;
+      width: 246px;
+      height: 246px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 3px solid var(--accent-soft);
+      box-shadow: var(--shadow);
+      touch-action: none;
+    }
+
+    .wheel-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .shuffle-btn {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg);
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      cursor: pointer;
+      z-index: 3;
+    }
+    .shuffle-btn:active { transform: translate(-50%, -50%) scale(0.92); }
+
+    .letter-node {
+      position: absolute;
+      width: 56px;
+      height: 56px;
+      margin-left: -28px;
+      margin-top: -28px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 2px solid #CBD5E1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--ink);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      pointer-events: none;
+      transition: transform 0.14s ease, background 0.14s ease, color 0.14s ease;
+      z-index: 2;
+    }
+    .letter-node.selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #FFFFFF;
+      transform: scale(1.13);
+    }
+
+    /* Bottom Action Buttons */
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .act-btn {
+      border: none;
+      background: var(--card);
+      border-radius: 14px;
+      padding: 12px 6px;
+      font-size: 14px;
+      font-weight: 800;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .act-btn:active { transform: scale(0.96); }
+    .act-clue { color: var(--blue); }
+    .act-hint { color: var(--orange); }
+    .act-next { color: var(--accent); }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 50;
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .modal-sheet {
+      background: var(--bg);
+      width: 100%;
+      max-width: 520px;
+      max-height: 90dvh;
+      border-radius: 24px 24px 0 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: slideUp 0.25s ease;
+    }
+
+    .modal-header {
+      background: var(--card);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #E2E8F0;
+    }
+    .modal-header h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .close-btn {
+      border: none;
+      background: var(--soft);
+      color: var(--ink);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 18px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .disc-img {
+      width: 100%;
+      max-height: 240px;
+      object-fit: cover;
+      border-radius: 16px;
+      background: var(--soft);
+      box-shadow: var(--shadow);
+    }
+
+    .disc-placeholder {
+      height: 140px;
+      border-radius: 16px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      font-weight: 900;
+      gap: 4px;
+    }
+    .disc-placeholder span { font-size: 16px; }
+
+    .speak-btn {
+      border: none;
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 13px;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .disc-summary {
+      font-size: 17px;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .facts-card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 14px 16px;
+    }
+    .facts-card h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      color: var(--accent);
+    }
+    .facts-card ul {
+      margin: 0;
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 15.5px;
+      line-height: 1.45;
+    }
+
+    .modal-footer {
+      background: var(--card);
+      padding: 12px 18px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid #E2E8F0;
+      display: flex;
+      gap: 10px;
+    }
+
+    .footer-btn {
+      flex: 1;
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .footer-secondary { background: var(--soft); color: var(--ink); }
+    .footer-primary { background: var(--accent); color: #fff; }
+
+    /* Scrapbook */
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .filter-pill {
+      border: none;
+      background: var(--card);
+      color: var(--ink);
+      padding: 7px 13px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .filter-pill.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .scrap-item {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 10px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .scrap-thumb {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      object-fit: cover;
+      background: var(--accent-soft);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+    .scrap-info h4 { margin: 0 0 2px; font-size: 17px; }
+    .scrap-info .scrap-cat { font-size: 12px; font-weight: 800; color: var(--accent); margin-bottom: 3px; }
+    .scrap-info p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Confetti Canvas */
+    #confetti {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 80;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.88); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confetti"></canvas>
+
+  <div class="app">
+    <header class="topbar">
+      <button class="pill-btn" id="openScrapbookBtn" aria-label="Open Scrapbook">
+        <span>📖</span> <span id="scrapCount">0</span>
+      </button>
+      <div class="star-pill" aria-label="Stars earned">
+        <span style="color:#F59E0B">★</span> <span id="starCount">60</span>
+      </div>
+      <button class="pill-btn" id="soundToggleBtn" aria-label="Toggle sound">🔊</button>
+    </header>
+
+    <div class="cat-row">
+      <div class="cat-badge" id="categoryBadge">🐾 Animals</div>
+      <div id="topRightAction"></div>
+    </div>
+
+    <div id="clueContainer"></div>
+
+    <main class="board-scroll" id="board"></main>
+
+    <div class="preview-area" id="previewArea"></div>
+
+    <div class="wheel-wrap">
+      <div class="wheel" id="wheel">
+        <svg class="wheel-svg" id="wheelSvg" viewBox="0 0 246 246"></svg>
+        <button class="shuffle-btn" id="shuffleBtn" aria-label="Shuffle letters">
+          <span style="font-size:17px">🔀</span>
+          <span>Mix</span>
+        </button>
+      </div>
+    </div>
+
+    <footer class="actions">
+      <button class="act-btn act-clue" id="clueBtn">❓ Clue</button>
+      <button class="act-btn act-hint" id="hintBtn">💡 Hint (10★)</button>
+      <button class="act-btn act-next" id="nextBtn">✨ New Topic</button>
+    </footer>
+  </div>
+
+  <!-- Discovery Card Modal -->
+  <div class="modal-backdrop" id="discoveryModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h2 id="discHeaderTitle">Discovery</h2>
+        <button class="close-btn" id="closeDiscBtn">Done</button>
+      </div>
+      <div class="modal-body" id="discBody"></div>
+      <div class="modal-footer" id="discFooter"></div>
+    </div>
+  </div>
+
+  <!-- Scrapbook Modal -->
+  <div class="modal-backdrop" id="scrapModal">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h2>My Scrapbook</h2>
+        <button class="close-btn" id="closeScrapBtn">Close</button>
+      </div>
+      <div class="modal-body">
+        <div class="filter-row" id="scrapFilters"></div>
+        <div id="scrapList" style="display:flex;flex-direction:column;gap:10px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CATEGORY_META = {
+      Animals:   { icon: "🐾", color: "#1E7A63", soft: "rgba(30, 122, 99, 0.14)" },
+      Geography: { icon: "🌍", color: "#1D6FA5", soft: "rgba(29, 111, 165, 0.14)" },
+      History:   { icon: "🏛️", color: "#B45309", soft: "rgba(180, 83, 9, 0.14)" }
+    };
+
+    const PUZZLES = [
+      // ANIMALS
+      {
+        id: "animal_platypus", category: "Animals", word: "PLATYPUS", wiki: "Platypus",
+        clue: "An egg-laying Australian mammal with a duck-like bill and webbed feet.",
+        summary: "The platypus is a semiaquatic, egg-laying mammal native to eastern Australia, famous for its duck-like bill, beaver-like tail, and otter-like feet.",
+        facts: [
+          "It hunts underwater with its eyes closed by sensing tiny electrical signals from prey.",
+          "Males have venomous spurs on their hind legs."
+        ],
+        subWords: [
+          ["PLAY", "Have fun or perform in a game"],
+          ["PLUS", "Added together; positive"],
+          ["PAST", "Time that has already happened"],
+          ["SLAP", "A quick open-handed tap"],
+          ["LAPS", "Circuits around a track or pool"],
+          ["SALT", "Common white seasoning from the sea"]
+        ]
+      },
+      {
+        id: "animal_dolphin", category: "Animals", word: "DOLPHIN", wiki: "Dolphin",
+        clue: "An intelligent marine mammal known for leaping out of waves and using clicks to navigate.",
+        summary: "Dolphins are highly social marine mammals found across the world's oceans. They communicate with whistles and navigate using echolocation.",
+        facts: [
+          "Dolphins sleep with only half of their brain at a time so they can keep swimming and breathing.",
+          "Each dolphin develops its own unique 'signature whistle' like a name."
+        ],
+        subWords: [
+          ["LION", "King of the savanna"],
+          ["HOLD", "Grasp or keep in one's hand"],
+          ["POND", "A small body of still water"],
+          ["PLOD", "Walk slowly with heavy steps"],
+          ["HIND", "Located at the back"]
+        ]
+      },
+      {
+        id: "animal_giraffe", category: "Animals", word: "GIRAFFE", wiki: "Giraffe",
+        clue: "The tallest living land animal, reaching treetop leaves with its long spotted neck.",
+        summary: "Giraffes are tall African hoofed mammals and the tallest terrestrial animals on Earth, with necks up to six feet long.",
+        facts: [
+          "Despite their long necks, giraffes have the exact same number of neck vertebrae as humans: seven!",
+          "Their tongues can be 18 inches long and are dark blue-purple to prevent sunburn."
+        ],
+        subWords: [
+          ["GRIEF", "Deep sorrow"],
+          ["FAIR", "Just, or a country carnival"],
+          ["FEAR", "Feeling afraid"],
+          ["FIRE", "Warm flames in a hearth"],
+          ["GEAR", "Equipment or toothed wheel"],
+          ["RAGE", "Fierce anger"]
+        ]
+      },
+      {
+        id: "animal_penguin", category: "Animals", word: "PENGUIN", wiki: "Penguin",
+        clue: "A flightless tuxedo-patterned bird built for swimming in icy southern waters.",
+        summary: "Penguins are aquatic flightless birds living almost exclusively in the Southern Hemisphere, expertly adapted for life in cold seas.",
+        facts: [
+          "Emperor penguins can hold their breath underwater for more than 20 minutes.",
+          "Many penguin species propose to a mate by gifting a smooth pebble."
+        ],
+        subWords: [
+          ["UNPIN", "Remove a fastener"],
+          ["NINE", "Number after eight"],
+          ["PINE", "An evergreen tree with cones"],
+          ["PING", "A crisp ringing sound"],
+          ["PEN", "An ink writing tool"]
+        ]
+      },
+      {
+        id: "animal_cheetah", category: "Animals", word: "CHEETAH", wiki: "Cheetah",
+        clue: "The fastest land animal on Earth, capable of bursts over 60 miles per hour.",
+        summary: "The cheetah is a large cat native to Africa and central Iran, renowned as the fastest land mammal on the planet.",
+        facts: [
+          "Dark 'tear marks' beneath a cheetah's eyes help block harsh sunlight glare while hunting.",
+          "Unlike lions and tigers, cheetahs cannot roar—they purr and chirp like birds."
+        ],
+        subWords: [
+          ["TEACH", "Help someone learn"],
+          ["CHEAT", "Break the rules in a game"],
+          ["EACH", "Every single one"],
+          ["HEAT", "Warmth from the sun or stove"],
+          ["HATE", "Strong dislike"],
+          ["CHAT", "A friendly conversation"]
+        ]
+      },
+      {
+        id: "animal_octopus", category: "Animals", word: "OCTOPUS", wiki: "Octopus",
+        clue: "A clever eight-armed sea creature that can change color and squeeze through tiny gaps.",
+        summary: "Octopuses are soft-bodied, eight-limbed mollusks known for remarkable problem-solving abilities and camouflage.",
+        facts: [
+          "An octopus has three hearts and blue copper-based blood.",
+          "Two-thirds of an octopus's neurons are located in its arms, not its head."
+        ],
+        subWords: [
+          ["SCOUT", "Explore ahead of a group"],
+          ["SPOT", "Notice, or a small round mark"],
+          ["STOP", "Come to a halt"],
+          ["POST", "Mail, or a wooden fence stake"],
+          ["COST", "Price of an item"],
+          ["SOUP", "A warm broth meal"]
+        ]
+      },
+      {
+        id: "animal_gazelle", category: "Animals", word: "GAZELLE", wiki: "Gazelle",
+        clue: "A graceful, swift antelope known for high bounding leaps across open plains.",
+        summary: "Gazelles are swift, agile antelopes found across dry grasslands in Africa and Asia, famous for graceful leaping runs.",
+        facts: [
+          "Their high vertical jumps, called 'stotting,' signal to predators that they are too fast to chase.",
+          "Gazelles can run in sustained bursts of 40 miles per hour."
+        ],
+        subWords: [
+          ["GLAZE", "A shiny sugar or ceramic coating"],
+          ["EAGLE", "Majestic bird of prey"],
+          ["LEGAL", "Allowed by law"],
+          ["GAZE", "Look steadily with wonder"],
+          ["GALE", "A very strong wind"]
+        ]
+      },
+      {
+        id: "animal_flamingo", category: "Animals", word: "FLAMINGO", wiki: "Flamingo",
+        clue: "A tall pink wading bird famous for balancing comfortably on one leg.",
+        summary: "Flamingos are wading birds recognized by their long slender legs, curved bills, and vibrant pink-to-coral plumage.",
+        facts: [
+          "Flamingos are born gray or white—they turn pink from pigments in the shrimp and algae they eat.",
+          "A group of flamingos is delightfully called a 'flamboyance.'"
+        ],
+        subWords: [
+          ["MANGO", "A sweet tropical stone fruit"],
+          ["GOAL", "An aim or sports score"],
+          ["FOAM", "Light frothy bubbles"],
+          ["LONG", "Extended in length"],
+          ["GAIN", "Increase or win"],
+          ["LOAF", "A baked shape of bread"]
+        ]
+      },
+
+      // GEOGRAPHY
+      {
+        id: "geo_everest", category: "Geography", word: "EVEREST", wiki: "Mount Everest",
+        clue: "Earth's highest mountain above sea level, towering in the Himalayas.",
+        summary: "Mount Everest sits on the border between Nepal and Tibet in the Himalayas, rising 29,031.7 feet above sea level.",
+        facts: [
+          "In Nepal it is called Sagarmatha, and in Tibet it is known as Chomolungma ('Goddess Mother of the World').",
+          "Tectonic plates still push Everest slightly higher every year."
+        ],
+        subWords: [
+          ["VERSE", "A line or stanza of poetry"],
+          ["SERVE", "Bring food or assist someone"],
+          ["STEER", "Guide a car or boat"],
+          ["REST", "Relax and take a break"],
+          ["TREE", "A tall woody plant"],
+          ["VEST", "A sleeveless garment"]
+        ]
+      },
+      {
+        id: "geo_tundra", category: "Geography", word: "TUNDRA", wiki: "Tundra",
+        clue: "A vast, treeless polar biome where the subsoil stays frozen year-round.",
+        summary: "The tundra is a cold, treeless biome found in the Arctic and atop high mountains, characterized by short summers and permafrost.",
+        facts: [
+          "During brief Arctic summers, the sun shines nearly 24 hours a day, sparking bursts of wildflowers.",
+          "The word 'tundra' comes from a Kildin Sami word meaning 'treeless upland.'"
+        ],
+        subWords: [
+          ["DAUNT", "Intimidate or discourage"],
+          ["TURN", "Change direction"],
+          ["AUNT", "Your parent's sister"],
+          ["DART", "A small pointed arrow"],
+          ["RANT", "Speak at length with passion"]
+        ]
+      },
+      {
+        id: "geo_iceland", category: "Geography", word: "ICELAND", wiki: "Iceland",
+        clue: "A Nordic island nation of glaciers, volcanoes, geysers, and geothermal hot springs.",
+        summary: "Iceland is a volcanic island country in the North Atlantic known for dramatic glaciers, waterfalls, and renewable geothermal energy.",
+        facts: [
+          "More than 85% of Iceland's homes are heated by natural geothermal hot water from underground.",
+          "Iceland has no mosquitoes anywhere on the island."
+        ],
+        subWords: [
+          ["CANDLE", "Wax stick with a burning wick"],
+          ["CLEAN", "Free from dirt"],
+          ["DANCE", "Move rhythmically to music"],
+          ["LAND", "Solid ground or country"],
+          ["LINE", "A long thin mark"],
+          ["DEAL", "An agreement or bargain"]
+        ]
+      },
+      {
+        id: "geo_volcano", category: "Geography", word: "VOLCANO", wiki: "Volcano",
+        clue: "A mountain opening in Earth's crust where molten lava, ash, and gases erupt.",
+        summary: "A volcano is a rupture in a planet's crust that allows hot lava, volcanic ash, and gases to escape from a magma chamber below.",
+        facts: [
+          "Around 75% of Earth's active volcanoes sit along the Pacific 'Ring of Fire.'",
+          "Volcanic ash actually creates some of the richest, most fertile farmland on Earth."
+        ],
+        subWords: [
+          ["VOCAL", "Spoken aloud or singing"],
+          ["COAL", "Dark mineral fuel"],
+          ["LOAN", "Money borrowed temporarily"],
+          ["OVAL", "Egg-shaped curve"],
+          ["COOL", "Mildly cold or refreshing"],
+          ["CLAN", "An extended family group"]
+        ]
+      },
+      {
+        id: "geo_glacier", category: "Geography", word: "GLACIER", wiki: "Glacier",
+        clue: "A slow-moving river of dense, ancient compressed snow and ice.",
+        summary: "Glaciers are massive, persistent bodies of dense ice that slowly flow downhill under their own immense weight, carving valleys.",
+        facts: [
+          "Glaciers hold roughly 69% of the world's freshwater supply.",
+          "Pure glacier ice often glows vivid blue because it absorbs red light and scatters blue."
+        ],
+        subWords: [
+          ["GRACE", "Elegance and poise"],
+          ["CLEAR", "Transparent or easy to see"],
+          ["LARGE", "Big in size"],
+          ["RACE", "A speed contest"],
+          ["CARE", "Look after with kindness"],
+          ["REAL", "Genuine and true"]
+        ]
+      },
+      {
+        id: "geo_venice", category: "Geography", word: "VENICE", wiki: "Venice",
+        clue: "An iconic Italian city built across more than 100 islands linked by canals and gondolas.",
+        summary: "Venice is a historic city in northeastern Italy built in a lagoon, famous for its winding canals, arched bridges, and St. Mark's Square.",
+        facts: [
+          "Venice has over 400 bridges connecting its 118 small islands.",
+          "The city's buildings rest on millions of wooden pilings driven deep into the lagoon clay centuries ago."
+        ],
+        subWords: [
+          ["NIECE", "Your sibling's daughter"],
+          ["NICE", "Pleasant and kind"],
+          ["VINE", "A climbing grape plant"],
+          ["VEIN", "A blood vessel or leaf rib"],
+          ["EVEN", "Flat, level, or divisible by two"]
+        ]
+      },
+      {
+        id: "geo_niagara", category: "Geography", word: "NIAGARA", wiki: "Niagara Falls",
+        clue: "Three thundering waterfalls straddling the border between Ontario and New York.",
+        summary: "Niagara Falls is a famous trio of waterfalls on the Niagara River between Canada and the United States, famed for its massive water flow.",
+        facts: [
+          "Up to six million cubic feet of water cascades over the crest every single minute at peak flow.",
+          "The falls generate clean hydroelectric power for millions of homes."
+        ],
+        subWords: [
+          ["GRAIN", "Wheat, oats, or a tiny speck"],
+          ["RAIN", "Drops falling from clouds"],
+          ["GAIN", "Achieve or obtain"],
+          ["RING", "Circular band of jewelry"],
+          ["RANG", "Past tense of ring"]
+        ]
+      },
+      {
+        id: "geo_canyon", category: "Geography", word: "CANYON", wiki: "Canyon",
+        clue: "A deep, steep-walled gorge carved over millions of years by a flowing river.",
+        summary: "A canyon is a deep cleft between cliffs or escarpments formed by weathering and the erosive activity of a river over long geological ages.",
+        facts: [
+          "Arizona's Grand Canyon exposes nearly two billion years of Earth's geological history in its colorful rock layers.",
+          "Temperatures at the bottom of a deep canyon can be 20°F warmer than at the rim."
+        ],
+        subWords: [
+          ["ANNOY", "Bother mildly"],
+          ["CYAN", "A bright greenish-blue color"],
+          ["ANY", "One or some, no matter which"],
+          ["CAN", "Be able to, or a tin container"],
+          ["YON", "Poetic word for over there"]
+        ]
+      },
+
+      // HISTORY
+      {
+        id: "hist_pyramid", category: "History", word: "PYRAMID", wiki: "Egyptian pyramids",
+        clue: "Monumental ancient stone tombs built in Egypt for pharaohs over 4,500 years ago.",
+        summary: "The Egyptian pyramids are ancient masonry structures built largely as royal tombs during the Old and Middle Kingdoms.",
+        facts: [
+          "The Great Pyramid of Giza was the tallest human-made structure on Earth for over 3,800 years.",
+          "Archaeologists found evidence that pyramid builders were well-fed skilled workers."
+        ],
+        subWords: [
+          ["DAIRY", "Milk, butter, and cheese"],
+          ["RAPID", "Very fast"],
+          ["PAID", "Settled a bill"],
+          ["PRAY", "Offer quiet thanks or hope"],
+          ["YARD", "Garden lawn or three feet"],
+          ["ARMY", "Organized military force"]
+        ]
+      },
+      {
+        id: "hist_vikings", category: "History", word: "VIKINGS", wiki: "Vikings",
+        clue: "Norse seafarers and explorers who sailed sleek longships from Scandinavia.",
+        summary: "Vikings were medieval Norse seafarers from Scandinavia who traded, raided, and settled from Europe all the way to North America.",
+        facts: [
+          "Leif Erikson reached North America around 500 years before Christopher Columbus.",
+          "Vikings used carved combs and bathed weekly—far cleaner than most medieval contemporaries."
+        ],
+        subWords: [
+          ["KINGS", "Royal monarchs"],
+          ["KING", "A male monarch"],
+          ["SING", "Make music with your voice"],
+          ["SKIN", "Outer covering"],
+          ["SINK", "Basin for washing hands"],
+          ["SIGN", "A posted notice or symbol"]
+        ]
+      },
+      {
+        id: "hist_pompeii", category: "History", word: "POMPEII", wiki: "Pompeii",
+        clue: "An ancient Roman city preserved under volcanic ash after Mount Vesuvius erupted in 79 AD.",
+        summary: "Pompeii was a thriving Roman city near Naples buried beneath volcanic ash from Mount Vesuvius in 79 AD, preserving daily Roman life.",
+        facts: [
+          "Excavations uncovered intact bakeries with carbonized loaves of Roman bread still inside ovens.",
+          "Vibrant fresco paintings and street signs offer a snapshot of ancient life."
+        ],
+        subWords: [
+          ["PIPE", "Hollow tube for water or music"],
+          ["POEM", "A piece of rhyming verse"],
+          ["POPE", "Leader of the Catholic Church"],
+          ["MIME", "Silent actor using gestures"],
+          ["PIE", "Baked pastry with sweet filling"]
+        ]
+      },
+      {
+        id: "hist_sparta", category: "History", word: "SPARTA", wiki: "Sparta",
+        clue: "A famous ancient Greek city-state celebrated for discipline, courage, and its warriors.",
+        summary: "Sparta was a prominent city-state in ancient Greece famous for its disciplined society, dual kingship, and legendary defense at Thermopylae.",
+        facts: [
+          "Spartan women could own land, inherit property, and received formal physical education—rare in ancient Greece.",
+          "Spartans were famous for short, witty replies, giving us the word 'laconic' from their region, Laconia."
+        ],
+        subWords: [
+          ["APART", "Separated by distance"],
+          ["STRAP", "A sturdy leather band"],
+          ["PART", "A piece of a whole"],
+          ["STAR", "A bright point in the night sky"],
+          ["TRAP", "A device for catching"],
+          ["PAST", "History or bygone times"]
+        ]
+      },
+      {
+        id: "hist_galileo", category: "History", word: "GALILEO", wiki: "Galileo Galilei",
+        clue: "The Italian astronomer who improved the telescope and discovered Jupiter's four largest moons.",
+        summary: "Galileo Galilei (1564–1642) was an Italian astronomer, physicist, and engineer widely hailed as the father of observational astronomy.",
+        facts: [
+          "In 1610, Galileo spotted four moons orbiting Jupiter—proving not everything in space orbits Earth.",
+          "NASA's Galileo spacecraft was named in his honor."
+        ],
+        subWords: [
+          ["AGILE", "Quick and graceful"],
+          ["LEGAL", "Permitted by law"],
+          ["GOAL", "An objective or target"],
+          ["GALE", "A strong gusty wind"],
+          ["GALL", "Bold nerve or audacity"]
+        ]
+      },
+      {
+        id: "hist_caesar", category: "History", word: "CAESAR", wiki: "Julius Caesar",
+        clue: "The Roman general and statesman who crossed the Rubicon and reshaped Rome.",
+        summary: "Julius Caesar was a Roman general and statesman whose leadership and reforms paved the way for the Roman Empire.",
+        facts: [
+          "He introduced the Julian calendar with 365 days and a leap year—the direct ancestor of our calendar today.",
+          "The month of July is named after Julius Caesar."
+        ],
+        subWords: [
+          ["SCARE", "Startle or frighten"],
+          ["CARE", "Affectionate attention"],
+          ["RACE", "Contest of speed"],
+          ["SCAR", "A healed mark on skin"],
+          ["ACRE", "Measure of land"],
+          ["AREA", "A region or space"]
+        ]
+      },
+      {
+        id: "hist_titanic", category: "History", word: "TITANIC", wiki: "Titanic",
+        clue: "The famous British luxury ocean liner that struck an iceberg in 1912.",
+        summary: "RMS Titanic was a British passenger liner that sank in the North Atlantic Ocean on April 15, 1912, during her maiden voyage.",
+        facts: [
+          "The wreck was finally discovered in 1985 by Robert Ballard more than two miles beneath the sea.",
+          "The ship featured a heated swimming pool, gymnasium, and grand oak staircase."
+        ],
+        subWords: [
+          ["ATTIC", "Storage room under a roof"],
+          ["TAINT", "Blemish or spoil slightly"],
+          ["TITAN", "A giant of great strength"],
+          ["TINT", "A subtle shade of color"],
+          ["ACT", "Perform in a play or take action"]
+        ]
+      },
+      {
+        id: "hist_castle", category: "History", word: "CASTLE", wiki: "Castle",
+        clue: "A medieval stone fortress with towers, battlements, and drawbridges.",
+        summary: "Castles were fortified residences built across Europe and the Middle East during the Middle Ages by monarchs and nobility.",
+        facts: [
+          "Castle spiral staircases almost always wound clockwise going up—giving right-handed defenders more room.",
+          "Many castles kept herbs scattered on stone floors to keep rooms smelling fresh."
+        ],
+        subWords: [
+          ["SCALE", "Climb up, or weigh something"],
+          ["SLATE", "Dark gray roofing stone"],
+          ["TALE", "A story passed down"],
+          ["LATE", "After the expected time"],
+          ["SALT", "Mineral used to preserve food"],
+          ["LAST", "Final, or endure over time"]
+        ]
+      }
+    ];
+
+    // Wholesome common English words for instant offline Bonus Word rewards
+    const BONUS_DICT = new Set((
+      "ACT,ADD,AGE,AGO,AID,AIM,AIR,ALE,ALL,ALP,AND,ANT,ANY,APE,APT,ARC,ARE,ARK,ARM,ART,ASH,ASK,ATE,AWE,AXE," +
+      "BAD,BAG,BAN,BAR,BAT,BAY,BED,BEE,BET,BIG,BIN,BIT,BOA,BOB,BOG,BOO,BOW,BOX,BOY,BUD,BUG,BUN,BUS,BUT,BUY," +
+      "CAB,CAD,CAM,CAN,CAP,CAR,CAT,CAW,COB,COD,COG,CON,COP,COT,COW,COX,COY,CRY,CUB,CUD,CUE,CUP,CUR,CUT," +
+      "DAB,DAD,DAM,DAN,DAY,DEN,DEW,DID,DIE,DIG,DIM,DIN,DIP,DOC,DOE,DOG,DON,DOT,DRY,DUB,DUD,DUE,DUG,DUH,DUN,DYE," +
+      "EAR,EAT,EBB,EEL,EGG,EGO,ELK,ELM,EMU,END,ERA,EVE,EWE,EYE,FAB,FAD,FAN,FAR,FAT,FAX,FED,FEE,FEN,FEW,FIB,FIG,FIN,FIR,FIT,FIX,FLU,FLY,FOB,FOE,FOG,FOP,FOR,FOX,FRY,FUN,FUR," +
+      "GAB,GAG,GAL,GAM,GAP,GAS,GAY,GEL,GEM,GET,GIG,GIN,GNU,GOB,GOD,GOT,GUM,GUN,GUT,GUY,GYM," +
+      "HAD,HAG,HAM,HAP,HAS,HAT,HAY,HEM,HEN,HER,HEW,HEX,HEY,HID,HIM,HIP,HIS,HIT,HOB,HOD,HOE,HOG,HOP,HOT,HOW,HUB,HUE,HUG,HUH,HUM,HUT," +
+      "ICE,ICY,ILL,IMP,INK,INN,ION,IRE,IRK,ITS,IVY,JAB,JAG,JAM,JAR,JAW,JAY,JET,JIG,JOB,JOG,JOT,JOY,JUG,JUT," +
+      "KEG,KEN,KEY,KID,KIN,KIT,LAB,LAC,LAD,LAG,LAP,LAW,LAX,LAY,LEA,LED,LEG,LET,LID,LIE,LIP,LIT,LOB,LOG,LOP,LOT,LOW,LUG,LYE," +
+      "MAD,MAN,MAP,MAR,MAT,MAW,MAX,MAY,MEN,MET,MEW,MID,MIX,MOB,MOD,MOM,MOP,MOW,MUD,MUG,MUM," +
+      "NAB,NAG,NAP,NAY,NET,NEW,NIB,NIL,NIP,NIT,NOD,NOR,NOT,NOW,NUB,NUN,NUT," +
+      "OAF,OAK,OAR,OAT,ODD,ODE,OFF,OFT,OHM,OIL,OLD,OLE,ONE,OPT,ORB,ORE,OUR,OUT,OVA,OWE,OWL,OWN," +
+      "PAD,PAL,PAN,PAP,PAR,PAT,PAW,PAY,PEA,PEG,PEN,PEP,PER,PET,PEW,PIE,PIG,PIN,PIP,PIT,PLY,POD,POI,POL,POP,POT,POW,PRO,PRY,PUB,PUG,PUN,PUP,PUS,PUT," +
+      "QUA,RAD,RAG,RAM,RAN,RAP,RAT,RAW,RAY,RED,REF,REP,RIB,RID,RIG,RIM,RIP,ROB,ROD,ROE,ROT,ROW,RUB,RUE,RUG,RUM,RUN,RUT,RYE," +
+      "SAC,SAD,SAG,SAP,SAT,SAW,SAX,SAY,SEA,SEE,SET,SEW,SHE,SHY,SIN,SIP,SIR,SIS,SIT,SIX,SKI,SKY,SLY,SOB,SOD,SON,SOP,SOT,SOW,SOX,SOY,SPA,SPY,STY,SUB,SUE,SUM,SUN,SUP," +
+      "TAB,TAD,TAG,TAN,TAP,TAR,TAT,TAX,TEA,TED,TEE,TEN,THE,THY,TIC,TIE,TIN,TIP,TOE,TOG,TOM,TON,TOO,TOP,TOT,TOW,TOY,TRY,TUB,TUG,TUN,TWO," +
+      "URN,USE,VAN,VAT,VET,VEX,VIA,VIE,VOW,WAD,WAG,WAN,WAR,WAS,WAX,WAY,WEB,WED,WEE,WET,WHO,WHY,WIG,WIN,WIT,WOE,WOK,WON,WOO,WOW,WRY," +
+      "YAK,YAM,YAP,YAW,YEA,YES,YET,YEW,YIN,YIP,YOU,YOW,ZAG,ZAP,ZED,ZEE,ZEN,ZIG,ZIP,ZIT,ZOO," +
+      "ACRE,AGES,ALOE,ALSO,ALTO,AREA,ARMY,ARTS,ATOM,AUNT,AVID,AXIS,CAKE,CALF,CALL,CALM,CAME,CAMP,CANE,CAPE,CARD,CARE,CARP,CART,CASE,CASH,CAST,CAVE," +
+      "CHAT,CLAN,CLAP,CLAW,CLAY,COAL,COAT,COIL,COIN,COLD,CONE,COOL,COOP,COPE,COPY,CORD,CORE,CORK,CORN,COST,COVE,CYAN," +
+      "DAME,DAMP,DARE,DARK,DARN,DART,DATA,DATE,DAWN,DEAL,DEAN,DEAR,DECK,DEED,DEEP,DEER,DENT,DIAL,DICE,DIET,DIME,DINE,DIRE,DIRT,DISH,DIVE,DOCK,DOLL,DOME,DONE,DOOR,DOSE,DOVE,DOWN,DRAG,DRAW,DROP,DRUM,DUAL,DUCK,DUEL,DUET,DUNE,DUSK,DUST,DUTY," +
+      "EACH,EARL,EARN,EARS,EASE,EAST,EASY,ECHO,EDGE,EDIT,EVEN,EVER,EVIL,EXIT,EYES,FACE,FACT,FADE,FAIL,FAIR,FAKE,FALL,FAME,FARE,FARM,FAST,FATE,FAWN,FEAR,FEAT,FEED,FEEL,FEET,FELL,FELT,FERN,FILE,FILL,FILM,FIND,FINE,FIRE,FIRM,FISH,FIST,FIVE,FLAG,FLAP,FLAT,FLAW,FLEA,FLOW,FOAM,FOIL,FOLD,FOLK,FOND,FOOD,FOOL,FOOT,FORD,FORK,FORM,FORT,FOUL,FOUR,FREE,FROG,FROM,FUEL,FULL,FUME,FUND,FURY,FUSE," +
+      "GAIN,GAIT,GALA,GALE,GALL,GAME,GANG,GAPE,GATE,GAVE,GAZE,GEAR,GEMS,GENE,GIFT,GILL,GIRL,GIVE,GLAD,GLOW,GLUE,GOAL,GOAT,GOES,GOLD,GOLF,GONE,GOOD,GOWN,GRAB,GRAM,GRAY,GREW,GRID,GRIM,GRIN,GRIP,GRIT,GROW,GULF,GULL,GUST," +
+      "HAIL,HAIR,HALF,HALL,HALO,HALT,HAND,HANG,HARD,HARE,HARM,HARP,HATE,HAUL,HAVE,HAWK,HAZE,HEAD,HEAL,HEAP,HEAR,HEAT,HEEL,HEIR,HELD,HELM,HELP,HERB,HERD,HERE,HERO,HIDE,HIGH,HIKE,HILL,HILT,HIND,HINT,HIRE,HIVE,HOLD,HOLE,HOLY,HOME,HONE,HOOD,HOOF,HOOK,HOOP,HOOT,HOPE,HORN,HOSE,HOST,HOUR,HUGE,HULL,HUNT,HURT,HUSH," +
+      "ICON,IDEA,IDLE,IDOL,INCH,INFO,IRON,ISLE,ITEM,JADE,JAIL,JAZZ,JEAN,JOIN,JOKE,JOLT,JULY,JUMP,JUNE,JURY,JUST," +
+      "KEEL,KEEN,KEEP,KELP,KEPT,KICK,KIND,KING,KISS,KITE,KNEE,KNEW,KNIT,KNOB,KNOT,KNOW," +
+      "LACE,LACK,LADY,LAID,LAIN,LAIR,LAKE,LAMB,LAME,LAMP,LAND,LANE,LAPS,LARD,LARK,LASH,LAST,LATE,LAVA,LAWN,LEAD,LEAF,LEAK,LEAN,LEAP,LEFT,LEND,LENS,LENT,LESS,LIAR,LICK,LIFE,LIFT,LIKE,LILY,LIMB,LIME,LINE,LINK,LINT,LION,LIST,LIVE,LOAD,LOAF,LOAN,LOCK,LOFT,LOGO,LONE,LONG,LOOK,LOOM,LOON,LOOP,LOOT,LORD,LORE,LOSE,LOSS,LOST,LOUD,LOVE,LUCK,LULL,LUMP,LUNG,LURE,LUSH,LUTE,LYNX," +
+      "MADE,MAID,MAIL,MAIN,MAKE,MALE,MALL,MALT,MANE,MANY,MARE,MARK,MARS,MASK,MASS,MAST,MATE,MATH,MAZE,MEAD,MEAL,MEAN,MEAT,MEEK,MEET,MELT,MEMO,MEND,MENU,MERE,MESA,MESH,MICE,MILD,MILE,MILK,MILL,MIME,MIND,MINE,MINI,MINK,MINT,MIRE,MISS,MIST,MITE,MOAN,MOAT,MOCK,MODE,MOLD,MOLE,MONK,MOOD,MOON,MOOR,MOPE,MORE,MORN,MOSS,MOST,MOTH,MOVE,MUCH,MULE,MUSE,MUST,MUTE,MYTH," +
+      "NAIL,NAME,NAPE,NAVY,NEAR,NEAT,NECK,NEED,NEON,NEST,NEWS,NEWT,NEXT,NICE,NICK,NINE,NODE,NONE,NOOK,NOON,NORM,NOSE,NOTE,NOUN,NOVA," +
+      "OATH,OBEY,ODOR,OGLE,OILS,OILY,OKAY,OMEN,OMIT,ONCE,ONLY,ONTO,ONYX,OPAL,OPEN,ORAL,ORCA,OVAL,OVEN,OVER,OWNS," +
+      "PACE,PACK,PACT,PAGE,PAID,PAIL,PAIN,PAIR,PALE,PALL,PALM,PALS,PANE,PANG,PANT,PARE,PARK,PART,PASS,PAST,PATH,PATS,PAVE,PAWN,PEAK,PEAL,PEAR,PEAS,PEAT,PECK,PEEK,PEEL,PEER,PELT,PEND,PERK,PEST,PICK,PIER,PIES,PIKE,PILE,PILL,PINE,PING,PINK,PINT,PIPE,PITA,PITH,PITY,PLAN,PLAY,PLEA,PLOD,PLOT,PLOW,PLOY,PLUG,PLUM,PLUS,POEM,POET,POKE,POLE,POLL,POLO,POND,PONY,POOL,POOR,POPE,PORE,PORK,PORT,POSE,POST,POUR,POUT,PRAY,PREY,PROD,PROP,PUFF,PULL,PULP,PUMA,PUMP,PUNK,PURE,PURR,PUSH," +
+      "RACE,RACK,RAFT,RAGE,RAID,RAIL,RAIN,RAKE,RAMP,RANG,RANK,RANT,RARE,RASH,RASP,RATE,RAVE,RAZE,READ,REAL,REAM,REAP,REAR,REED,REEF,REEL,REIN,RELY,REND,RENT,REST,RICE,RICH,RIDE,RIFT,RILE,RIND,RING,RINK,RIOT,RIPE,RISE,RISK,RITE,ROAD,ROAM,ROAR,ROBE,ROCK,RODE,ROLE,ROLL,ROME,ROMP,ROOF,ROOK,ROOM,ROOT,ROPE,ROSE,ROSY,ROUT,ROVE,RUBY,RUDE,RUIN,RULE,RUNE,RUNG,RUNT,RUSE,RUSH,RUST," +
+      "SACK,SAFE,SAGA,SAGE,SAID,SAIL,SAKE,SALE,SALT,SAME,SAND,SANE,SANG,SANK,SAPS,SASH,SAVE,SCAN,SCAR,SEAL,SEAM,SEAR,SEAT,SEED,SEEK,SEEM,SEEN,SEEP,SEER,SELF,SELL,SEND,SENT,SETS,SHAD,SHAM,SHED,SHIN,SHIP,SHOE,SHOP,SHOT,SHOW,SHUN,SHUT,SICK,SIDE,SIFT,SIGH,SIGN,SILK,SILO,SILT,SINE,SING,SINK,SIRE,SITE,SIZE,SKID,SKIM,SKIN,SKIP,SKIT,SLAB,SLAM,SLAP,SLAT,SLAY,SLED,SLEW,SLID,SLIM,SLIP,SLIT,SLOW,SLUG,SMOG,SNAP,SNIP,SNOB,SNOW,SNUG,SOAK,SOAP,SOAR,SOCK,SODA,SOFA,SOFT,SOIL,SOLD,SOLE,SOLO,SOME,SONG,SOON,SOOT,SORE,SORT,SOUL,SOUP,SOUR,SPAN,SPAR,SPAT,SPED,SPIN,SPIT,SPOT,SPUN,SPUR,STAB,STAG,STAR,STAY,STEM,STEP,STEW,STIR,STOP,STOW,STUB,STUD,STUN,SUCH,SUIT,SULK,SUMS,SUNG,SUNK,SURE,SURF,SWAM,SWAN,SWAP,SWAT,SWAY,SWIM," +
+      "TACK,TACO,TACT,TAIL,TAKE,TALE,TALK,TALL,TAME,TANG,TANK,TAPE,TAPS,TARE,TARP,TART,TASK,TAUT,TAXI,TEAK,TEAL,TEAM,TEAR,TECH,TEEM,TEEN,TELL,TEND,TENT,TERM,TEST,TEXT,THAN,THAT,THAW,THEM,THEN,THEY,THIN,THIS,THUD,THUS,TICK,TIDE,TIDY,TIED,TIER,TILE,TILL,TILT,TIME,TINE,TINT,TINY,TIRE,TOAD,TOES,TOFU,TOGA,TOIL,TOLD,TOLL,TOMB,TOME,TONE,TONG,TONS,TOOK,TOOL,TOOT,TOPS,TORE,TORN,TOSS,TOTE,TOUR,TOUT,TOWN,TOYS,TRAM,TRAP,TRAY,TREE,TREK,TRIM,TRIO,TRIP,TROT,TRUE,TUBA,TUBE,TUCK,TUFT,TUNA,TUNE,TURF,TURN,TUSK,TWIG,TWIN,TYPE,TYPO," +
+      "UGLY,UNDO,UNIT,UNTO,UPON,URGE,USED,USER,VAIN,VALE,VANE,VARY,VASE,VAST,VEAL,VEER,VEIL,VEIN,VEND,VENT,VERB,VERY,VEST,VETO,VIAL,VIBE,VICE,VIEW,VILE,VINE,VISA,VOID,VOLT,VOTE," +
+      "WADE,WAFT,WAGE,WAIL,WAIT,WAKE,WALK,WALL,WAND,WANE,WANT,WARD,WARE,WARM,WARN,WARP,WART,WARY,WASH,WASP,WAVE,WAVY,WEAK,WEAN,WEAR,WEED,WEEK,WEEP,WELD,WELL,WELT,WENT,WEPT,WERE,WEST,WHAT,WHEN,WHIM,WHIP,WHIR,WHIZ,WHOM,WICK,WIDE,WIFE,WILD,WILE,WILL,WILT,WIND,WINE,WING,WINK,WIPE,WIRE,WIRY,WISE,WISH,WISP,WITH,WITS,WOKE,WOLF,WOOD,WOOF,WOOL,WORD,WORE,WORK,WORM,WORN,WOVE,WRAP,WREN,WRIT," +
+      "YANK,YARD,YARN,YAWN,YEAR,YELL,YELP,YOGA,YOKE,YOLK,YORE,YOUR,YOWL,YULE,ZANY,ZEAL,ZERO,ZEST,ZINC,ZING,ZONE,ZOOM,ZOO," +
+      "ALONG,APPLE,CHART,CHAIR,CHOIR,PLAIN,PLATE,PLANT,SPORT,START,SPEND,SLATE,SPLAT,STRAP,STEAM,STONE,STORM,TRAIL,TRAIN,TRIAL,VERGE,VERSE,SERVE,RESET,STEER,CARES,SCARE,LATER,GREAT,GRATE,HEART,EARTH,WATER,TIGER,EAGLE,WHALE"
+    ).split(","));
+
+    // App State
+    let stars = Number(localStorage.getItem("ww_stars") ?? 60);
+    let soundEnabled = localStorage.getItem("ww_sound") !== "false";
+    let discoveries = JSON.parse(localStorage.getItem("ww_discoveries") || "[]");
+    let unplayedIds = [];
+    let currentPuzzle = null;
+    let wheelLetters = [];
+    let selectedIndices = [];
+    let solvedWords = new Set();
+    let bonusWords = new Set();
+    let hintedPositions = {}; // word -> Set of indices
+    let showMainClue = false;
+    let activeSlotWord = null;
+    let currentDiscovery = null;
+    let scrapFilter = "All";
+    let audioCtx = null;
+
+    // DOM refs
+    const boardEl = document.getElementById("board");
+    const previewEl = document.getElementById("previewArea");
+    const wheelEl = document.getElementById("wheel");
+    const wheelSvg = document.getElementById("wheelSvg");
+    const clueContainer = document.getElementById("clueContainer");
+
+    function saveProgress() {
+      localStorage.setItem("ww_stars", String(stars));
+      localStorage.setItem("ww_sound", String(soundEnabled));
+      localStorage.setItem("ww_discoveries", JSON.stringify(discoveries));
+      document.getElementById("starCount").textContent = stars;
+      document.getElementById("scrapCount").textContent = discoveries.length;
+      document.getElementById("soundToggleBtn").textContent = soundEnabled ? "🔊" : "🔇";
+    }
+
+    // Audio Chimes (Web Audio API — zero audio files required)
+    function ensureAudio() {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) audioCtx = new AC();
+      }
+      if (audioCtx && audioCtx.state === "suspended") {
+        audioCtx.resume().catch(() => {});
+      }
+    }
+
+    function playTone(freq, dur = 0.09, gainVal = 0.08) {
+      if (!soundEnabled) return;
+      ensureAudio();
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      const now = audioCtx.currentTime;
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.exponentialRampToValueAtTime(gainVal, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + dur + 0.02);
+    }
+
+    function playStepChime(step) {
+      const scale = [523.25, 587.33, 659.25, 698.46, 783.99, 880, 987.77, 1046.5];
+      playTone(scale[step % scale.length], 0.08, 0.07);
+    }
+
+    function playSuccessChord(major) {
+      const freqs = major ? [523.25, 659.25, 783.99, 1046.5] : [659.25, 880];
+      freqs.forEach((f, i) => setTimeout(() => playTone(f, 0.28, 0.07), i * 35));
+    }
+
+    // Shuffle helper
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function loadNextPuzzle() {
+      stopSpeech();
+      closeDiscoveryModal();
+      if (unplayedIds.length === 0) {
+        unplayedIds = shuffleArray(PUZZLES.filter(p => !currentPuzzle || p.id !== currentPuzzle.id).map(p => p.id));
+      }
+      const nextId = unplayedIds.shift();
+      currentPuzzle = PUZZLES.find(p => p.id === nextId) || PUZZLES[0];
+
+      wheelLetters = shuffleArray(currentPuzzle.word.split(""));
+      if (wheelLetters.join("") === currentPuzzle.word) {
+        wheelLetters = shuffleArray(wheelLetters);
+      }
+
+      selectedIndices = [];
+      solvedWords = new Set();
+      bonusWords = new Set();
+      hintedPositions = {};
+      showMainClue = false;
+      activeSlotWord = null;
+      currentDiscovery = null;
+
+      // Apply category colors
+      const meta = CATEGORY_META[currentPuzzle.category];
+      document.documentElement.style.setProperty("--accent", meta.color);
+      document.documentElement.style.setProperty("--accent-soft", meta.soft);
+      document.getElementById("categoryBadge").textContent = `${meta.icon} ${currentPuzzle.category}`;
+
+      renderAll();
+    }
+
+    function renderAll() {
+      saveProgress();
+      renderTopRight();
+      renderClues();
+      renderBoard();
+      renderPreview();
+      renderWheel();
+    }
+
+    function renderTopRight() {
+      const el = document.getElementById("topRightAction");
+      if (solvedWords.has(currentPuzzle.word)) {
+        el.innerHTML = `<button class="fact-chip" id="viewFactChip">🖼️ View Fact</button>`;
+        document.getElementById("viewFactChip").onclick = () => openDiscoveryForCurrent();
+      } else {
+        el.innerHTML = `<button class="skip-btn" id="skipBtn">Skip ⏭️</button>`;
+        document.getElementById("skipBtn").onclick = () => loadNextPuzzle();
+      }
+    }
+
+    function renderClues() {
+      const clueBtn = document.getElementById("clueBtn");
+      clueBtn.textContent = showMainClue ? "✖️ Hide Clue" : "❓ Clue";
+
+      if (activeSlotWord) {
+        clueContainer.innerHTML = `
+          <div class="clue-box">
+            <div class="clue-title">Word Clue (${activeSlotWord[0].length} letters)</div>
+            <div class="clue-text">${activeSlotWord[1]}</div>
+          </div>`;
+      } else if (showMainClue) {
+        clueContainer.innerHTML = `
+          <div class="clue-box">
+            <div class="clue-title">Topic Clue</div>
+            <div class="clue-text">${currentPuzzle.clue}</div>
+          </div>`;
+      } else {
+        clueContainer.innerHTML = "";
+      }
+    }
+
+    function makeTilesHTML(word, isFeatured) {
+      const isSolved = solvedWords.has(word);
+      const hints = hintedPositions[word] || new Set();
+      return word.split("").map((ch, idx) => {
+        const show = isSolved || hints.has(idx);
+        const cls = isSolved ? "tile solved" : (hints.has(idx) ? "tile hinted" : "tile");
+        return `<div class="${cls}">${show ? ch : ""}</div>`;
+      }).join("");
+    }
+
+    function renderBoard() {
+      const featSolved = solvedWords.has(currentPuzzle.word);
+      const longClass = currentPuzzle.word.length >= 8 ? "long-word" : "";
+      let html = `
+        <div class="featured-card ${longClass}" id="featuredCard">
+          <div class="featured-label">${featSolved ? "✨ Discovered — Tap for Photo & Facts" : "🔍 Featured Mystery Word"}</div>
+          <div class="tiles-row">${makeTilesHTML(currentPuzzle.word, true)}</div>
+        </div>
+        <div class="sub-grid">
+      `;
+
+      currentPuzzle.subWords.forEach((item, i) => {
+        const w = item[0];
+        const isActive = activeSlotWord && activeSlotWord[0] === w ? "active-clue" : "";
+        html += `
+          <div class="sub-card ${isActive}" data-sub-idx="${i}">
+            <div class="tiles-row">${makeTilesHTML(w, false)}</div>
+          </div>`;
+      });
+
+      html += `</div>`;
+      boardEl.innerHTML = html;
+
+      document.getElementById("featuredCard").onclick = () => {
+        if (solvedWords.has(currentPuzzle.word)) {
+          openDiscoveryForCurrent();
+        } else {
+          activeSlotWord = null;
+          showMainClue = !showMainClue;
+          playTone(580, 0.06, 0.05);
+          renderClues();
+        }
+      };
+
+      document.querySelectorAll(".sub-card").forEach(card => {
+        card.onclick = () => {
+          const item = currentPuzzle.subWords[Number(card.dataset.subIdx)];
+          if (solvedWords.has(item[0])) return;
+          activeSlotWord = (activeSlotWord && activeSlotWord[0] === item[0]) ? null : item;
+          playTone(580, 0.06, 0.05);
+          renderClues();
+          renderBoard();
+        };
+      });
+    }
+
+    function showBanner(msg, isWarn = false) {
+      previewEl.innerHTML = `<div class="banner-pill ${isWarn ? "warn" : ""}">${msg}</div>`;
+      clearTimeout(window._bannerTimer);
+      window._bannerTimer = setTimeout(() => {
+        if (selectedIndices.length === 0) renderPreview();
+      }, 2100);
+    }
+
+    function renderPreview() {
+      if (selectedIndices.length === 0) {
+        previewEl.innerHTML = `<div class="helper-hint">Swipe or tap letters • Tap any word box for a clue</div>`;
+        return;
+      }
+      const word = selectedIndices.map(i => wheelLetters[i]).join("");
+      previewEl.innerHTML = `
+        <div class="preview-pill">
+          <button class="mini-circle-btn" id="clearWordBtn" aria-label="Clear">✕</button>
+          <div class="preview-letters">${word}</div>
+          <button class="check-btn" id="checkWordBtn">Check</button>
+        </div>`;
+      document.getElementById("clearWordBtn").onclick = () => {
+        selectedIndices = [];
+        renderPreview();
+        updateWheelVisuals();
+      };
+      document.getElementById("checkWordBtn").onclick = () => submitWord();
+    }
+
+    // Wheel Geometry & Touch Handling
+    let nodeCenters = [];
+    function renderWheel() {
+      // Remove old letter nodes
+      wheelEl.querySelectorAll(".letter-node").forEach(n => n.remove());
+      nodeCenters = [];
+      const size = 246;
+      const cx = size / 2, cy = size / 2, r = 86;
+
+      wheelLetters.forEach((ch, idx) => {
+        const angle = (2 * Math.PI / wheelLetters.length) * idx - Math.PI / 2;
+        const x = cx + Math.cos(angle) * r;
+        const y = cy + Math.sin(angle) * r;
+        nodeCenters.push({ x, y });
+
+        const node = document.createElement("div");
+        node.className = "letter-node";
+        node.style.left = x + "px";
+        node.style.top = y + "px";
+        node.textContent = ch;
+        node.dataset.index = idx;
+        wheelEl.appendChild(node);
+      });
+
+      updateWheelVisuals();
+    }
+
+    function updateWheelVisuals(dragPt = null) {
+      wheelEl.querySelectorAll(".letter-node").forEach(node => {
+        const idx = Number(node.dataset.index);
+        node.classList.toggle("selected", selectedIndices.includes(idx));
+      });
+
+      if (selectedIndices.length === 0) {
+        wheelSvg.innerHTML = "";
+        return;
+      }
+
+      const pts = selectedIndices.map(i => nodeCenters[i]);
+      let d = `M ${pts[0].x} ${pts[0].y}`;
+      for (let i = 1; i < pts.length; i++) d += ` L ${pts[i].x} ${pts[i].y}`;
+      if (dragPt) d += ` L ${dragPt.x} ${dragPt.y}`;
+
+      const color = CATEGORY_META[currentPuzzle.category].color;
+      wheelSvg.innerHTML = `<path d="${d}" fill="none" stroke="${color}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity="0.82"/>`;
+    }
+
+    function localPoint(clientX, clientY) {
+      const rect = wheelEl.getBoundingClientRect();
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    function hitTestNode(pt) {
+      for (let i = 0; i < nodeCenters.length; i++) {
+        const dx = pt.x - nodeCenters[i].x;
+        const dy = pt.y - nodeCenters[i].y;
+        if (Math.hypot(dx, dy) <= 34) return i;
+      }
+      return -1;
+    }
+
+    let isDragging = false;
+    let movedToNewNode = false;
+    let initialNode = -1;
+
+    wheelEl.addEventListener("pointerdown", (e) => {
+      if (e.target.closest("#shuffleBtn")) return;
+      ensureAudio();
+      const pt = localPoint(e.clientX, e.clientY);
+      const hit = hitTestNode(pt);
+      if (hit === -1) return;
+
+      isDragging = true;
+      movedToNewNode = false;
+      initialNode = hit;
+      wheelEl.setPointerCapture(e.pointerId);
+
+      if (!selectedIndices.includes(hit)) {
+        selectedIndices.push(hit);
+        playStepChime(selectedIndices.length - 1);
+      } else if (selectedIndices[selectedIndices.length - 1] === hit && selectedIndices.length > 0) {
+        // Let tap-again act as undo on pointerup if they didn't drag
+        initialNode = -2 - hit; // flag for single-tap undo
+      }
+
+      renderPreview();
+      updateWheelVisuals(pt);
+    });
+
+    wheelEl.addEventListener("pointermove", (e) => {
+      if (!isDragging) return;
+      const pt = localPoint(e.clientX, e.clientY);
+      const hit = hitTestNode(pt);
+
+      if (hit !== -1) {
+        const actualInitial = initialNode < -1 ? -(initialNode + 2) : initialNode;
+        if (hit !== actualInitial) movedToNewNode = true;
+
+        // Backtrack while dragging
+        if (movedToNewNode && selectedIndices.length >= 2 && hit === selectedIndices[selectedIndices.length - 2]) {
+          selectedIndices.pop();
+          playStepChime(selectedIndices.length);
+          renderPreview();
+        } else if (!selectedIndices.includes(hit)) {
+          selectedIndices.push(hit);
+          playStepChime(selectedIndices.length - 1);
+          renderPreview();
