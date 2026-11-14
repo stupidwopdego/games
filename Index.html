@@ -54,11 +54,10 @@
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
-      padding: max(10px, env(safe-area-inset-top)) 14px max(12px, env(safe-area-inset-bottom));
+      padding: max(10px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom));
       gap: 10px;
     }
 
-    /* Top Bar */
     .topbar {
       display: flex;
       align-items: center;
@@ -66,31 +65,19 @@
       gap: 8px;
     }
 
-    .pill-btn {
+    .pill-btn, .stars-pill {
       border: none;
       background: var(--card);
       color: var(--text);
       border-radius: 999px;
       padding: 8px 14px;
       font-size: 16px;
-      font-weight: 700;
+      font-weight: 800;
       display: inline-flex;
       align-items: center;
       gap: 6px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.07);
       cursor: pointer;
-    }
-
-    .stars-pill {
-      background: var(--card);
-      border-radius: 999px;
-      padding: 8px 14px;
-      font-size: 16px;
-      font-weight: 800;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.07);
     }
 
     .category-row {
@@ -133,7 +120,6 @@
       cursor: pointer;
     }
 
-    /* Clue Box */
     .clue-box {
       background: var(--card);
       border-left: 4px solid var(--accent);
@@ -154,7 +140,6 @@
       margin-bottom: 2px;
     }
 
-    /* Board */
     .board {
       flex: 1;
       overflow-y: auto;
@@ -198,10 +183,7 @@
       box-shadow: 0 1px 4px rgba(0,0,0,0.05);
       cursor: pointer;
     }
-
-    .word-card.active-clue {
-      border-color: var(--accent);
-    }
+    .word-card.active-clue { border-color: var(--accent); }
 
     .tiles-row {
       display: flex;
@@ -245,7 +227,6 @@
       transform: scale(1.03);
     }
 
-    /* Preview / Banner Strip */
     .status-strip {
       min-height: 42px;
       display: flex;
@@ -303,7 +284,6 @@
       to { transform: scale(1); opacity: 1; }
     }
 
-    /* Wheel */
     .wheel-wrap {
       display: flex;
       justify-content: center;
@@ -378,7 +358,6 @@
       transform: scale(1.13);
     }
 
-    /* Bottom Action Row */
     .actions {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -388,7 +367,6 @@
     .action-btn {
       border: none;
       background: var(--card);
-      color: var(--text);
       border-radius: 14px;
       padding: 11px 6px;
       font-size: 14px;
@@ -396,8 +374,10 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.06);
       cursor: pointer;
     }
+    .btn-clue { color: #2563eb; }
+    .btn-hint { color: #d97706; }
+    .btn-next { color: var(--accent); }
 
-    /* Modals */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -512,7 +492,6 @@
     .btn-secondary { background: var(--surface); color: var(--text); }
     .btn-primary { background: var(--accent); color: #fff; }
 
-    /* Scrapbook List */
     .filter-row {
       display: flex;
       gap: 8px;
@@ -605,13 +584,12 @@
   </div>
 
   <div class="actions">
-    <button class="action-btn" id="clueBtn">❓ Clue</button>
-    <button class="action-btn" id="hintBtn">💡 Hint (10⭐)</button>
-    <button class="action-btn" id="nextBtn">✨ New Topic</button>
+    <button class="action-btn btn-clue" id="clueBtn">❓ Clue</button>
+    <button class="action-btn btn-hint" id="hintBtn">💡 Hint (10⭐)</button>
+    <button class="action-btn btn-next" id="nextBtn">✨ New Topic</button>
   </div>
 </div>
 
-<!-- Discovery Card Modal -->
 <div class="modal-backdrop" id="discoveryModal">
   <div class="modal-sheet">
     <div class="modal-header">
@@ -626,7 +604,6 @@
   </div>
 </div>
 
-<!-- Scrapbook Modal -->
 <div class="modal-backdrop" id="scrapbookModal">
   <div class="modal-sheet">
     <div class="modal-header">
@@ -648,7 +625,6 @@ const CATEGORIES = {
 };
 
 const PUZZLES = [
-  // ANIMALS
   {
     id: "animal_platypus", category: "Animals", word: "PLATYPUS", wiki: "Platypus",
     clue: "An egg-laying Australian mammal with a duck-like bill and webbed feet.",
@@ -761,7 +737,6 @@ const PUZZLES = [
       ["GAIN", "Increase or win"], ["LOAF", "Baked shape of bread"]
     ]
   },
-  // GEOGRAPHY
   {
     id: "geo_everest", category: "Geography", word: "EVEREST", wiki: "Mount Everest",
     clue: "Earth's highest mountain above sea level, towering in the Himalayas.",
@@ -874,7 +849,6 @@ const PUZZLES = [
       ["YON", "Poetic word for over there"]
     ]
   },
-  // HISTORY
   {
     id: "hist_pyramid", category: "History", word: "PYRAMID", wiki: "Egyptian pyramids",
     clue: "Monumental ancient stone tombs built in Egypt for pharaohs over 4,500 years ago.",
@@ -989,7 +963,6 @@ const PUZZLES = [
   }
 ];
 
-// Common valid English bonus words formed from puzzle letters
 const BONUS_DICT = new Set([
   "ACT","AGE","AIR","ALL","ANT","ANY","APT","ARE","ARM","ART","ATE","AUNT","CAN","CAR","CAT","CHAT","COAT",
   "CON","COOL","COST","CYAN","DART","DEAL","DIP","DRY","EACH","EAR","EAT","ERA","EVEN","FAIR","FEAR","FIRE",
@@ -1004,13 +977,31 @@ const BONUS_DICT = new Set([
   "VEIN","VEST","VINE","WAR","WARN","WAY","WIN","YARD","YES","YET","YON","YOU","ZAP"
 ]);
 
-// App State
-let state = {
-  stars: Number(localStorage.getItem("ww_stars") ?? 60),
-  sound: localStorage.getItem("ww_sound") !== "false",
-  scrapbook: JSON.parse(localStorage.getItem("ww_scrapbook") || "[]"),
+function readStorage(key, fallback) {
+  try {
+    const val = localStorage.getItem(key);
+    return val === null ? fallback : val;
+  } catch (e) {
+    return fallback;
+  }
+}
+
+function readScrapbook() {
+  try {
+    const raw = localStorage.getItem("ww_scrapbook");
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+const state = {
+  stars: Number(readStorage("ww_stars", "60")) || 60,
+  sound: readStorage("ww_sound", "true") !== "false",
+  scrapbook: readScrapbook(),
   deck: [],
-  puzzle: null,
+  puzzle: PUZZLES[0],
   letters: [],
   selected: [],
   solved: new Set(),
@@ -1018,7 +1009,6 @@ let state = {
   hints: {},
   showMainClue: false,
   activeSlotClue: null,
-  discovery: null,
   scrapFilter: "All"
 };
 
@@ -1026,10 +1016,10 @@ let audioCtx = null;
 let pointerActive = false;
 let isDraggingPath = false;
 let initialNode = null;
+let wasLastOnDown = false;
 let dragPoint = null;
 let bannerTimer = null;
 
-// Elements
 const boardEl = document.getElementById("board");
 const wheelEl = document.getElementById("wheel");
 const wheelSvg = document.getElementById("wheelSvg");
@@ -1047,9 +1037,11 @@ const discoveryModal = document.getElementById("discoveryModal");
 const scrapbookModal = document.getElementById("scrapbookModal");
 
 function saveProgress() {
-  localStorage.setItem("ww_stars", String(state.stars));
-  localStorage.setItem("ww_sound", String(state.sound));
-  localStorage.setItem("ww_scrapbook", JSON.stringify(state.scrapbook));
+  try {
+    localStorage.setItem("ww_stars", String(state.stars));
+    localStorage.setItem("ww_sound", String(state.sound));
+    localStorage.setItem("ww_scrapbook", JSON.stringify(state.scrapbook));
+  } catch (e) {}
   starsEl.textContent = state.stars;
   scrapCountEl.textContent = state.scrapbook.length;
   soundBtn.textContent = state.sound ? "🔊" : "🔇";
@@ -1058,8 +1050,9 @@ function saveProgress() {
 function playTone(freq, duration = 0.09, vol = 0.12) {
   if (!state.sound) return;
   try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!audioCtx) audioCtx = new AudioContext();
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    if (!audioCtx) audioCtx = new AC();
     if (audioCtx.state === "suspended") audioCtx.resume();
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
@@ -1080,10 +1073,12 @@ function playSuccess(major = false) {
 }
 
 function shuffleArray(arr) {
-  const copy = [...arr];
+  const copy = arr.slice();
   for (let i = copy.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
+    const tmp = copy[i];
+    copy[i] = copy[j];
+    copy[j] = tmp;
   }
   return copy;
 }
@@ -1105,12 +1100,11 @@ function loadNextPuzzle() {
   state.hints = {};
   state.showMainClue = false;
   state.activeSlotClue = null;
-  state.discovery = null;
 
   const theme = CATEGORIES[puzzle.category];
   document.documentElement.style.setProperty("--accent", theme.color);
   document.documentElement.style.setProperty("--accent-soft", theme.soft);
-  catBadge.textContent = `${theme.emoji} ${puzzle.category}`;
+  catBadge.textContent = theme.emoji + " " + puzzle.category;
   clueBtn.textContent = "❓ Clue";
   renderAll();
 }
@@ -1128,7 +1122,7 @@ function renderAll() {
 
 function renderClue() {
   if (state.activeSlotClue) {
-    clueTitle.textContent = `Word Clue (${state.activeSlotClue.word.length} letters)`;
+    clueTitle.textContent = "Word Clue (" + state.activeSlotClue.word.length + " letters)";
     clueText.textContent = state.activeSlotClue.clue;
     clueBox.classList.add("visible");
   } else if (state.showMainClue) {
@@ -1140,7 +1134,7 @@ function renderClue() {
   }
 }
 
-function makeTiles(word, isFeatured) {
+function makeTiles(word) {
   const row = document.createElement("div");
   row.className = "tiles-row";
   const isSolved = state.solved.has(word);
@@ -1165,7 +1159,7 @@ function renderBoard() {
   label.className = "featured-label";
   label.textContent = featSolved ? "✨ Discovery Unlocked — Tap for Photo & Facts" : "🔍 Featured Mystery Word";
   featCard.appendChild(label);
-  featCard.appendChild(makeTiles(p.word, true));
+  featCard.appendChild(makeTiles(p.word));
   featCard.onclick = () => {
     if (featSolved) openDiscoveryModal();
     else toggleSlotClue(p.word, p.clue);
@@ -1174,10 +1168,12 @@ function renderBoard() {
 
   const grid = document.createElement("div");
   grid.className = "subgrid";
-  p.subs.forEach(([word, clue]) => {
+  p.subs.forEach(pair => {
+    const word = pair[0];
+    const clue = pair[1];
     const card = document.createElement("div");
     card.className = "word-card" + (state.activeSlotClue && state.activeSlotClue.word === word ? " active-clue" : "");
-    card.appendChild(makeTiles(word, false));
+    card.appendChild(makeTiles(word));
     card.onclick = () => {
       if (!state.solved.has(word)) toggleSlotClue(word, clue);
     };
@@ -1243,7 +1239,9 @@ function showBanner(msg, warn = false) {
 
 function getNodeCenters() {
   const size = 242;
-  const cx = size / 2, cy = size / 2, radius = 84;
+  const cx = size / 2;
+  const cy = size / 2;
+  const radius = 84;
   return state.letters.map((_, i) => {
     const angle = (2 * Math.PI / state.letters.length) * i - Math.PI / 2;
     return { x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius };
@@ -1263,11 +1261,10 @@ function renderWheel() {
     wheelEl.appendChild(node);
   });
 
-  // Draw SVG connecting path
   wheelSvg.innerHTML = "";
   if (state.selected.length > 0) {
-    const pts = state.selected.map(i => `${centers[i].x},${centers[i].y}`);
-    if (dragPoint && isDraggingPath) pts.push(`${dragPoint.x},${dragPoint.y}`);
+    const pts = state.selected.map(i => centers[i].x + "," + centers[i].y);
+    if (dragPoint && isDraggingPath) pts.push(dragPoint.x + "," + dragPoint.y);
     const poly = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
     poly.setAttribute("points", pts.join(" "));
     poly.setAttribute("fill", "none");
@@ -1286,9 +1283,7 @@ function hitTestWheel(clientX, clientY) {
   dragPoint = { x, y };
   const centers = getNodeCenters();
   for (let i = 0; i < centers.length; i++) {
-    const dx = x - centers[i].x;
-    const dy = y - centers[i].y;
-    if (Math.hypot(dx, dy) <= 32) return i;
+    if (Math.hypot(x - centers[i].x, y - centers[i].y) <= 32) return i;
   }
   return null;
 }
@@ -1296,13 +1291,15 @@ function hitTestWheel(clientX, clientY) {
 wheelEl.addEventListener("pointerdown", e => {
   if (e.target.closest("#shuffleBtn")) return;
   e.preventDefault();
-  wheelEl.setPointerCapture(e.pointerId);
+  try { wheelEl.setPointerCapture(e.pointerId); } catch (err) {}
   pointerActive = true;
   isDraggingPath = false;
   initialNode = null;
+  wasLastOnDown = false;
   const hit = hitTestWheel(e.clientX, e.clientY);
   if (hit !== null) {
     initialNode = hit;
+    wasLastOnDown = state.selected.length > 0 && state.selected[state.selected.length - 1] === hit;
     if (!state.selected.includes(hit)) {
       state.selected.push(hit);
       const scale = [523, 587, 659, 698, 784, 880, 988, 1046];
@@ -1333,7 +1330,7 @@ wheelEl.addEventListener("pointermove", e => {
   renderStatus();
 });
 
-function endWheelPointer() {
+function endWheelPointer(e) {
   if (!pointerActive) return;
   pointerActive = false;
   dragPoint = null;
@@ -1341,9 +1338,14 @@ function endWheelPointer() {
     isDraggingPath = false;
     submitAttempt();
   } else {
+    if (wasLastOnDown && state.selected.length > 0) {
+      state.selected.pop();
+    }
     renderWheel();
+    renderStatus();
   }
   initialNode = null;
+  wasLastOnDown = false;
 }
 wheelEl.addEventListener("pointerup", endWheelPointer);
 wheelEl.addEventListener("pointercancel", endWheelPointer);
@@ -1365,7 +1367,7 @@ function submitAttempt() {
 
   if (state.solved.has(word) || state.bonus.has(word)) {
     playTone(250, 0.12);
-    showBanner(`Already found ${word}!`, true);
+    showBanner("Already found " + word + "!", true);
     return;
   }
 
@@ -1373,9 +1375,7 @@ function submitAttempt() {
   const boardMatch = word === p.word || p.subs.some(s => s[0] === word);
   if (boardMatch) {
     state.solved.add(word);
-    if (state.activeSlotClue && state.activeSlotClue.word === word) {
-      state.activeSlotClue = null;
-    }
+    if (state.activeSlotClue && state.activeSlotClue.word === word) state.activeSlotClue = null;
     const isFeatured = word === p.word;
     const reward = isFeatured ? 15 : 5;
     state.stars += reward;
@@ -1385,7 +1385,7 @@ function submitAttempt() {
 
     playSuccess(isFeatured || allSolved);
     renderAll();
-    showBanner(isFeatured ? `Discovered ${word}! +${reward}⭐` : `Great! ${word} +${reward}⭐`);
+    showBanner(isFeatured ? "Discovered " + word + "! +" + reward + "⭐" : "Great! " + word + " +" + reward + "⭐");
 
     if (isFeatured || allSolved) launchConfetti();
     if (isFeatured) openDiscoveryModal();
@@ -1397,7 +1397,7 @@ function submitAttempt() {
     state.stars += 3;
     playSuccess(false);
     saveProgress();
-    showBanner(`Bonus Word: ${word}! +3⭐`);
+    showBanner("Bonus Word: " + word + "! +3⭐");
     return;
   }
 
@@ -1418,7 +1418,6 @@ function launchConfetti() {
   }
 }
 
-// Hints & Controls
 document.getElementById("shuffleBtn").onclick = () => {
   state.selected = [];
   state.letters = shuffleArray(state.letters);
@@ -1437,7 +1436,7 @@ clueBtn.onclick = () => {
 
 document.getElementById("hintBtn").onclick = () => {
   const p = state.puzzle;
-  const targets = [p.word, ...p.subs.map(s => s[0])];
+  const targets = [p.word].concat(p.subs.map(s => s[0]));
   const unsolved = targets.find(w => !state.solved.has(w));
   if (!unsolved) {
     showBanner("All words solved!");
@@ -1476,13 +1475,12 @@ soundBtn.onclick = () => {
   saveProgress();
 };
 
-// Wikipedia Fetch + Discovery Modal
 async function fetchDiscovery(puzzle) {
   const existing = state.scrapbook.find(item => item.id === puzzle.id);
   if (existing && existing.image) return existing;
 
   const title = encodeURIComponent(puzzle.wiki.replace(/ /g, "_"));
-  const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${title}`;
+  const url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + title;
   let data = null;
   try {
     const res = await fetch(url);
@@ -1516,27 +1514,66 @@ async function openDiscoveryModal(customItem = null) {
   document.getElementById("modalNextBtn").textContent = customItem ? "Close" : "Next Topic →";
 
   discoveryModal.classList.add("open");
-  body.innerHTML = `<p style="text-align:center; padding:40px 0; color:var(--muted);">Loading picture &amp; facts...</p>`;
+  body.innerHTML = '<p style="text-align:center; padding:40px 0; color:var(--muted);">Loading picture &amp; facts...</p>';
 
   const item = customItem || await fetchDiscovery(state.puzzle);
   const cat = CATEGORIES[item.category];
-  document.getElementById("modalCatLabel").textContent = `${cat.emoji} ${item.category}`;
+  document.getElementById("modalCatLabel").textContent = cat.emoji + " " + item.category;
 
-  body.innerHTML = `
-    <h2 style="margin:0 0 4px; font-size:28px;">${item.title}</h2>
-    <div style="color:var(--muted); font-size:15px; text-transform:capitalize; margin-bottom:8px;">${item.subtitle}</div>
-    ${item.image ? `<img class="discovery-img" src="${item.image}" alt="${item.title}">` : ""}
-    <button class="speak-btn" id="speakBtn">🔊 Read Facts Aloud</button>
-    <p class="summary-text">${item.summary}</p>
-    <div class="facts-box">
-      <h4>💡 Did You Know?</h4>
-      <ul>${item.facts.map(f => `<li>${f}</li>`).join("")}</ul>
-    </div>
-    ${item.pageUrl ? `<a href="${item.pageUrl}" target="_blank" rel="noopener" style="color:var(--accent); font-weight:700; font-size:15px;">Read full Wikipedia article ↗</a>` : ""}
-  `;
+  body.innerHTML = "";
 
-  const speakBtn = document.getElementById("speakBtn");
-  speakBtn.onclick = () => toggleSpeech(`${item.title}. ${item.summary} Did you know? ${item.facts.join(" ")}`, speakBtn);
+  const h2 = document.createElement("h2");
+  h2.style.cssText = "margin:0 0 4px; font-size:28px;";
+  h2.textContent = item.title;
+  body.appendChild(h2);
+
+  const sub = document.createElement("div");
+  sub.style.cssText = "color:var(--muted); font-size:15px; text-transform:capitalize; margin-bottom:8px;";
+  sub.textContent = item.subtitle;
+  body.appendChild(sub);
+
+  if (item.image) {
+    const img = document.createElement("img");
+    img.className = "discovery-img";
+    img.src = item.image;
+    img.alt = item.title;
+    body.appendChild(img);
+  }
+
+  const speakBtn = document.createElement("button");
+  speakBtn.className = "speak-btn";
+  speakBtn.textContent = "🔊 Read Facts Aloud";
+  speakBtn.onclick = () => toggleSpeech(item.title + ". " + item.summary + " Did you know? " + item.facts.join(" "), speakBtn);
+  body.appendChild(speakBtn);
+
+  const sumP = document.createElement("p");
+  sumP.className = "summary-text";
+  sumP.textContent = item.summary;
+  body.appendChild(sumP);
+
+  const box = document.createElement("div");
+  box.className = "facts-box";
+  const h4 = document.createElement("h4");
+  h4.textContent = "💡 Did You Know?";
+  box.appendChild(h4);
+  const ul = document.createElement("ul");
+  item.facts.forEach(f => {
+    const li = document.createElement("li");
+    li.textContent = f;
+    ul.appendChild(li);
+  });
+  box.appendChild(ul);
+  body.appendChild(box);
+
+  if (item.pageUrl) {
+    const link = document.createElement("a");
+    link.href = item.pageUrl;
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.style.cssText = "color:var(--accent); font-weight:700; font-size:15px;";
+    link.textContent = "Read full Wikipedia article ↗";
+    body.appendChild(link);
+  }
 }
 
 function toggleSpeech(text, btn) {
@@ -1556,75 +1593,5 @@ function toggleSpeech(text, btn) {
 }
 
 function stopSpeech() {
-  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-}
-
-function closeModals() {
-  stopSpeech();
-  discoveryModal.classList.remove("open");
-  scrapbookModal.classList.remove("open");
-}
-
-document.getElementById("closeDiscoveryBtn").onclick = closeModals;
-document.getElementById("finishWordsBtn").onclick = closeModals;
-document.getElementById("modalNextBtn").onclick = () => {
-  if (document.getElementById("modalNextBtn").textContent === "Close") closeModals();
-  else loadNextPuzzle();
-};
-
-// Scrapbook
-document.getElementById("scrapbookBtn").onclick = () => {
-  renderScrapbook();
-  scrapbookModal.classList.add("open");
-};
-document.getElementById("closeScrapbookBtn").onclick = closeModals;
-
-function renderScrapbook() {
-  const filtersEl = document.getElementById("scrapFilters");
-  const listEl = document.getElementById("scrapList");
-  const cats = ["All", "Animals", "Geography", "History"];
-
-  filtersEl.innerHTML = "";
-  cats.forEach(c => {
-    const count = c === "All" ? state.scrapbook.length : state.scrapbook.filter(x => x.category === c).length;
-    const btn = document.createElement("button");
-    btn.className = "filter-chip" + (state.scrapFilter === c ? " active" : "");
-    btn.textContent = `${c} (${count})`;
-    btn.onclick = () => { state.scrapFilter = c; renderScrapbook(); };
-    filtersEl.appendChild(btn);
-  });
-
-  const items = state.scrapFilter === "All"
-    ? state.scrapbook
-    : state.scrapbook.filter(x => x.category === state.scrapFilter);
-
-  listEl.innerHTML = "";
-  if (items.length === 0) {
-    listEl.innerHTML = `<p style="text-align:center; color:var(--muted); padding:32px 12px;">Solve featured mystery words in History, Geography, and Animals to collect photos and facts here!</p>`;
-    return;
-  }
-
-  items.forEach(item => {
-    const row = document.createElement("div");
-    row.className = "scrap-item";
-    row.innerHTML = `
-      ${item.image ? `<img class="scrap-thumb" src="${item.image}" alt="${item.title}">` : `<div class="scrap-thumb">${CATEGORIES[item.category].emoji}</div>`}
-      <div>
-        <div style="font-weight:800; font-size:17px;">${item.title}</div>
-        <div style="font-size:13px; font-weight:700; color:${CATEGORIES[item.category].color};">${item.category}</div>
-        <div style="font-size:13px; color:var(--muted); margin-top:2px;">${item.summary.slice(0, 75)}...</div>
-      </div>
-    `;
-    row.onclick = () => {
-      scrapbookModal.classList.remove("open");
-      openDiscoveryModal(item);
-    };
-    listEl.appendChild(row);
-  });
-}
-
-// Start Game
-loadNextPuzzle();
-</script>
-</body>
-</html>
+  try {
+    if ("speechSynthesis
