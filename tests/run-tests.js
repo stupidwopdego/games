@@ -197,5 +197,20 @@ test("restoreRound accepts a good save and rejects a broken one", function () {
   check(L.restoreRound(null, PUZZLES) === null, "nothing saved");
 });
 
+test("board-word clues tie to the topic and never give away the mystery word", function () {
+  PUZZLES.forEach(function (p) {
+    p.words.forEach(function (w) {
+      var m = L.maskClue(w[1], p);
+      check(m.toUpperCase().indexOf(p.word) === -1, p.id + " " + w[0] + " clue gives away " + p.word);
+      check(m.replace(/\(mystery word\)/g, "").replace(/[^a-z]/gi, "").length >= 3, p.id + " " + w[0] + " clue is empty after masking");
+    });
+  });
+  var cheetah = { word: "CHEETAH" };
+  check(L.maskClue("Cheetahs eat fast", cheetah) === "(mystery word) eat fast", "plural masked");
+  check(L.maskClue("A cheetah's spots", cheetah) === "A (mystery word)'s spots", "possessive masked");
+  check(L.maskClue("Leonardo painted the Mona Lisa", { word: "MONALISA" }) === "Leonardo painted the (mystery word)", "two-word name masked");
+  check(L.maskClue("Lions hunt at night", cheetah) === "Lions hunt at night", "other words untouched");
+});
+
 console.log("\n" + passed + " passed, " + failed + " failed");
 process.exit(failed ? 1 : 0);

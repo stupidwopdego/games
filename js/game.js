@@ -140,7 +140,8 @@
     var box = $("clueBox");
     if (state.slotClue) {
       $("clueTitle").textContent = "Word clue · " + state.slotClue.w.length + " letters";
-      $("clueText").textContent = state.slotClue.q;
+      // Hide the mystery word inside board-word clues until it has been found.
+      $("clueText").textContent = state.solved.has(state.p.word) ? state.slotClue.q : L.maskClue(state.slotClue.q, state.p);
       box.classList.add("visible");
     } else if (state.mainClue) {
       $("clueTitle").textContent = "Mystery word clue";

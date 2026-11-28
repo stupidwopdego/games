@@ -68,6 +68,17 @@ function leftInCategory(puzzles, cat, seen) {
   return puzzles.filter(function (p) { return p.cat === cat && !seen.has(p.id); }).length;
 }
 
+// Board-word clues often mention the topic. Until the mystery word is found,
+// show "(mystery word)" there instead, so the clue doesn't give it away.
+var EXTRA_NAMES = { MONALISA: ["Mona Lisa"], VANGOGH: ["van Gogh"], WRIGHTS: ["Wright"] };
+function maskClue(clue, p) {
+  var w = p.word.toLowerCase();
+  var names = [w, w.replace(/(es|s)$/, "")].concat(EXTRA_NAMES[p.word] || []);
+  names.sort(function (a, b) { return b.length - a.length; });
+  var esc = names.map(function (n) { return n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/ /g, "\\s+"); });
+  return String(clue).replace(new RegExp("\\b(" + esc.join("|") + ")[a-z]*", "gi"), "(mystery word)");
+}
+
 // Shuffle a copy of an array.
 function shuffled(a, rand) {
   rand = rand || Math.random;
@@ -109,7 +120,7 @@ function restoreRound(saved, puzzles) {
 var WWLogic = {
   letterCounts: letterCounts, canSpell: canSpell, boardWords: boardWords,
   isComplete: isComplete, hintTarget: hintTarget, pickNext: pickNext,
-  pickInCategory: pickInCategory, leftInCategory: leftInCategory,
+  pickInCategory: pickInCategory, leftInCategory: leftInCategory, maskClue: maskClue,
   shuffled: shuffled, quizChoices: quizChoices, restoreRound: restoreRound
 };
 if (typeof module !== "undefined") module.exports = WWLogic;
