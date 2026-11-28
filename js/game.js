@@ -114,12 +114,25 @@
     startRound(byId[id] || PUZZLES[0], null);
   }
 
+  // Stay in the same category: a new topic there, undiscovered ones first.
+  function moreInCategory() {
+    var cat = state.p.cat, left = L.leftInCategory(PUZZLES, cat, seen);
+    var id = L.pickInCategory(PUZZLES, cat, seen, state.recent);
+    startRound(byId[id] || PUZZLES[0], null);
+    if (!left) banner("You've discovered every " + catName(cat) + " topic! Here's one to play again.");
+  }
+  function moreLabel() {
+    var cat = state.p.cat, left = L.leftInCategory(PUZZLES, cat, seen);
+    return "More " + catOf(cat).e + " " + catName(cat) + (left ? " (" + left + " new)" : "");
+  }
+
   // ── Drawing the board ─────────────────────────────────────────
   function renderAll() {
     save(); renderClue(); renderBoard(); renderStatus(); renderWheel();
     var done = state.solved.has(state.p.word);
     $("viewFactBtn").hidden = !done;
-    $("skipBtn").hidden = done;
+    $("skipBtn").textContent = done ? "More " + catOf(state.p.cat).e + " →" : "Skip ↷";
+    $("skipBtn").setAttribute("aria-label", done ? moreLabel() : "Skip this topic");
     state.pop = null;
   }
 
@@ -343,7 +356,7 @@
     else renderAll();
   };
   $("nextBtn").onclick = nextPuzzle;
-  $("skipBtn").onclick = nextPuzzle;
+  $("skipBtn").onclick = function () { if (state.solved.has(state.p.word)) moreInCategory(); else nextPuzzle(); };
   $("viewFactBtn").onclick = function () { openDiscovery(); };
   $("soundBtn").onclick = function () { state.sound = !state.sound; save(); };
 
@@ -387,6 +400,8 @@
     var body = $("discoveryBody"), p = state.p;
     $("finishWordsBtn").hidden = !!custom || L.isComplete(p, state.solved);
     $("modalNextBtn").textContent = custom ? "Close" : "Next Topic →";
+    $("moreCatBtn").hidden = !!custom;
+    $("moreCatBtn").textContent = moreLabel();
     $("discoveryModal").classList.add("open");
     body.textContent = "";
     body.appendChild(el("p", "loading", "Loading picture & facts…"));
@@ -495,6 +510,7 @@
 
   $("closeDiscoveryBtn").onclick = closeModals;
   $("finishWordsBtn").onclick = closeModals;
+  $("moreCatBtn").onclick = moreInCategory;
   $("modalNextBtn").onclick = function () { if ($("modalNextBtn").textContent === "Close") closeModals(); else nextPuzzle(); };
   $("scrapbookBtn").onclick = function () { renderScrap(); $("scrapbookModal").classList.add("open"); };
   $("closeScrapbookBtn").onclick = closeModals;

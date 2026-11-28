@@ -130,6 +130,8 @@ button { font-family: inherit; color: inherit; }
 .wiki-link { color: var(--accent); font-weight: 800; font-size: 16px; }
 .btn-sec, .btn-pri { flex: 1; border: none; border-radius: 16px; padding: 14px; font-size: 17px; font-weight: 900; cursor: pointer; }
 .btn-sec { background: var(--surface); } .btn-pri { background: var(--accent); color: #fff; }
+.modal-footer { flex-wrap: wrap; }
+.btn-more { flex-basis: 100%; background: var(--soft); color: var(--accent); }
 
 /* Scrapbook */
 .filter-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; }
