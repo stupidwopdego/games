@@ -5,96 +5,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="WonderWheel" />
+  <meta name="theme-color" content="#f6f3ec" />
   <title>WonderWheel</title>
-  <style>
-    :root { --bg:#f6f3ec; --card:#fff; --surface:#ebe6dc; --text:#1f2937; --muted:#6b7280; --accent:#256d5b; --soft:rgba(37,109,91,.13); }
-    @media (prefers-color-scheme:dark) { :root { --bg:#121518; --card:#1d2228; --surface:#282f37; --text:#f3f4f6; --muted:#9ca3af; } }
-    * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
-    html,body { margin:0; padding:0; height:100%; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"SF Pro Rounded",sans-serif; overscroll-behavior:none; }
-    .app { max-width:520px; margin:0 auto; min-height:100dvh; display:flex; flex-direction:column; padding:max(10px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom)); gap:10px; }
-    .topbar,.cat-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
-    .pill { border:none; background:var(--card); color:var(--text); border-radius:999px; padding:8px 14px; font-size:16px; font-weight:800; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 6px rgba(0,0,0,.07); cursor:pointer; }
-    .cat-badge { background:var(--soft); color:var(--accent); font-weight:800; font-size:14px; padding:6px 12px; border-radius:999px; }
-    .skip-btn { border:none; background:transparent; color:var(--muted); font-size:14px; font-weight:700; padding:6px 10px; cursor:pointer; }
-    .fact-chip { border:none; background:var(--accent); color:#fff; font-size:14px; font-weight:700; padding:7px 13px; border-radius:999px; cursor:pointer; }
-    .clue-box { background:var(--card); border-left:4px solid var(--accent); border-radius:12px; padding:10px 12px; font-size:15px; line-height:1.35; display:none; }
-    .clue-box.visible { display:block; }
-    .clue-title { font-size:12px; font-weight:800; color:var(--accent); text-transform:uppercase; margin-bottom:2px; }
-    .board { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
-    .featured-card { background:var(--soft); border:2px solid var(--accent); border-radius:16px; padding:10px 8px; text-align:center; cursor:pointer; }
-    .featured-label { font-size:11px; font-weight:800; letter-spacing:.6px; color:var(--accent); margin-bottom:7px; text-transform:uppercase; }
-    .subgrid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-    .word-card { background:var(--card); border:2px solid transparent; border-radius:12px; padding:8px 6px; display:flex; justify-content:center; box-shadow:0 1px 4px rgba(0,0,0,.05); cursor:pointer; }
-    .word-card.active-clue { border-color:var(--accent); }
-    .tiles-row { display:flex; justify-content:center; gap:4px; }
-    .tile { width:27px; height:31px; border-radius:7px; border:1.5px solid rgba(128,128,128,.32); background:var(--bg); color:var(--accent); font-weight:800; font-size:16px; display:flex; align-items:center; justify-content:center; }
-    .featured-card .tile { width:34px; height:38px; font-size:20px; background:var(--card); }
-    .featured-card.long .tile { width:30px; height:35px; font-size:18px; }
-    .tile.solved { background:var(--accent); border-color:var(--accent); color:#fff; }
-    .status-strip { min-height:42px; display:flex; align-items:center; justify-content:center; }
-    .hint-text { font-size:13px; font-weight:600; color:var(--muted); text-align:center; }
-    .preview-pill { background:var(--card); border-radius:999px; padding:5px 12px; display:inline-flex; align-items:center; gap:10px; box-shadow:0 2px 8px rgba(0,0,0,.08); }
-    .preview-letters { font-size:23px; font-weight:800; letter-spacing:2px; }
-    .mini-btn { border:none; border-radius:999px; padding:6px 12px; font-size:14px; font-weight:700; cursor:pointer; }
-    .mini-clear { background:var(--surface); color:var(--text); }
-    .mini-check { background:var(--accent); color:#fff; }
-    .banner-pill { padding:7px 16px; border-radius:999px; color:#fff; font-size:15px; font-weight:800; background:var(--accent); }
-    .banner-pill.warn { background:#d97706; }
-    .wheel-wrap { display:flex; justify-content:center; }
-    .wheel { position:relative; width:242px; height:242px; border-radius:50%; background:var(--card); border:3px solid var(--soft); box-shadow:0 6px 20px rgba(0,0,0,.09); touch-action:none; }
-    .wheel-svg { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
-    .wheel-center { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:52px; height:52px; border-radius:50%; border:none; background:var(--surface); color:var(--accent); font-size:12px; font-weight:800; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; z-index:2; }
-    .letter-node { position:absolute; width:54px; height:54px; margin:-27px 0 0 -27px; border-radius:50%; background:var(--bg); border:2px solid rgba(128,128,128,.25); color:var(--text); font-size:25px; font-weight:800; display:flex; align-items:center; justify-content:center; pointer-events:none; transition:transform .12s,background .12s; z-index:3; }
-    .letter-node.selected { background:var(--accent); border-color:var(--accent); color:#fff; transform:scale(1.13); }
-    .actions { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
-    .action-btn { border:none; background:var(--card); border-radius:14px; padding:11px 4px; font-size:13px; font-weight:800; white-space:nowrap; box-shadow:0 2px 6px rgba(0,0,0,.06); cursor:pointer; }
-    .btn-clue { color:#3b82f6; } .btn-hint { color:#f59e0b; } .btn-next { color:var(--accent); }
-    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:flex-end; justify-content:center; z-index:50; }
-    .modal-backdrop.open { display:flex; }
-    .modal-sheet { width:100%; max-width:540px; max-height:92dvh; background:var(--bg); border-radius:22px 22px 0 0; display:flex; flex-direction:column; overflow:hidden; }
-    .modal-header,.modal-footer { padding:13px 18px; display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--card); }
-    .modal-body { padding:16px 18px 24px; overflow-y:auto; -webkit-user-select:text; user-select:text; }
-    .discovery-img { width:100%; height:220px; object-fit:cover; border-radius:16px; background:var(--surface); margin:10px 0 14px; display:block; }
-    .speak-btn { width:100%; border:none; border-radius:14px; padding:12px; background:var(--soft); color:var(--accent); font-size:16px; font-weight:800; margin-bottom:14px; cursor:pointer; }
-    .facts-box { background:var(--card); border-radius:16px; padding:14px; margin:14px 0; }
-    .facts-box h4 { margin:0 0 8px; color:var(--accent); }
-    .facts-box ul { margin:0; padding-left:18px; line-height:1.45; }
-    .btn-sec,.btn-pri { flex:1; border:none; border-radius:14px; padding:13px; font-size:16px; font-weight:800; cursor:pointer; }
-    .btn-sec { background:var(--surface); color:var(--text); } .btn-pri { background:var(--accent); color:#fff; }
-    .filter-row { display:flex; gap:8px; overflow-x:auto; padding-bottom:12px; }
-    .filter-chip { border:none; border-radius:999px; padding:7px 14px; font-size:14px; font-weight:700; background:var(--card); color:var(--text); white-space:nowrap; cursor:pointer; }
-    .filter-chip.active { background:var(--accent); color:#fff; }
-    .scrap-item { background:var(--card); border-radius:14px; padding:10px; display:flex; gap:12px; align-items:center; margin-bottom:10px; cursor:pointer; }
-    .scrap-thumb { width:62px; height:62px; border-radius:10px; object-fit:cover; background:var(--soft); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:26px; }
-    .confetti { position:fixed; width:10px; height:10px; border-radius:50%; pointer-events:none; z-index:99; animation:fall 1.2s ease-out forwards; }
-    @keyframes fall { 0%{transform:translateY(0);opacity:1} 100%{transform:translateY(220px);opacity:0} }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 <div class="app">
   <div class="topbar">
-    <button class="pill" id="scrapbookBtn">📖 <span id="scrapCount">0</span></button>
-    <div class="pill">⭐ <span id="starsCount">60</span></div>
-    <button class="pill" id="soundBtn">🔊</button>
+    <button class="pill" id="scrapbookBtn" aria-label="Open scrapbook">📖 <span id="scrapCount">0</span></button>
+    <div class="pill" aria-label="Stars">⭐ <span id="starsCount">60</span></div>
+    <button class="pill" id="soundBtn" aria-label="Sound on or off">🔊</button>
   </div>
+
+  <div class="progress" aria-live="polite">
+    <div class="progress-text" id="progressText">Discovered 0 of 0</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
   <div class="cat-row">
     <div class="cat-badge" id="catBadge">🐾 Animals</div>
-    <button class="fact-chip" id="viewFactBtn" style="display:none;">🖼️ View Photo &amp; Facts</button>
+    <button class="fact-chip" id="viewFactBtn" hidden>🖼️ Photo &amp; Facts</button>
     <button class="skip-btn" id="skipBtn">Skip ↷</button>
   </div>
+
   <div class="clue-box" id="clueBox"><div class="clue-title" id="clueTitle"></div><div id="clueText"></div></div>
   <div class="board" id="board"></div>
-  <div class="status-strip" id="statusStrip"><div class="hint-text">Swipe or tap letters • Tap any row for a clue</div></div>
-  <div class="wheel-wrap"><div class="wheel" id="wheel"><svg class="wheel-svg" id="wheelSvg"></svg><button class="wheel-center" id="shuffleBtn" type="button">🔀<span>Mix</span></button></div></div>
+  <div class="status-strip" id="statusStrip"></div>
+
+  <div class="wheel-wrap">
+    <div class="wheel" id="wheel">
+      <svg class="wheel-svg" id="wheelSvg"></svg>
+      <button class="wheel-center" id="shuffleBtn" type="button" aria-label="Mix letters">🔀<span>Mix</span></button>
+    </div>
+  </div>
+
   <div class="actions">
     <button class="action-btn btn-clue" id="clueBtn">❓ Clue</button>
-    <button class="action-btn btn-hint" id="hintBtn">💡 Hint (10⭐)</button>
+    <button class="action-btn btn-hint" id="hintBtn">💡 Hint <small>10⭐</small></button>
     <button class="action-btn btn-next" id="nextBtn">✨ New Topic</button>
   </div>
 </div>
 
 <div class="modal-backdrop" id="discoveryModal">
-  <div class="modal-sheet">
+  <div class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="modalCatLabel">
     <div class="modal-header"><strong id="modalCatLabel">Discovery</strong><button class="mini-btn mini-clear" id="closeDiscoveryBtn">Done</button></div>
     <div class="modal-body" id="discoveryBody"></div>
     <div class="modal-footer"><button class="btn-sec" id="finishWordsBtn">Finish Words</button><button class="btn-pri" id="modalNextBtn">Next Topic →</button></div>
@@ -102,427 +58,27 @@
 </div>
 
 <div class="modal-backdrop" id="scrapbookModal">
-  <div class="modal-sheet">
+  <div class="modal-sheet" role="dialog" aria-modal="true" aria-label="My Scrapbook">
     <div class="modal-header"><strong>📖 My Scrapbook</strong><button class="mini-btn mini-clear" id="closeScrapbookBtn">Close</button></div>
     <div class="modal-body"><div class="filter-row" id="scrapFilters"></div><div id="scrapList"></div></div>
   </div>
 </div>
 
 <script>
-window.onerror = function(msg, src, line) {
+// Show any startup error on screen instead of a blank page.
+window.onerror = function (msg, src, line) {
   var b = document.getElementById("board");
-  if (b) b.innerHTML = "<div style='padding:14px;background:#fee2e2;color:#991b1b;border-radius:12px;font-weight:700;'>Error (line " + line + "): " + msg + "</div>";
+  if (!b) return;
+  var d = document.createElement("div");
+  d.className = "error-box";
+  d.textContent = "Something went wrong (line " + line + "): " + msg;
+  b.textContent = "";
+  b.appendChild(d);
 };
 </script>
-<script>
-const CATS = {
-  Animals: { e: "🐾", c: "#256d5b", s: "rgba(37,109,91,.15)" },
-  Geography: { e: "🌍", c: "#2563eb", s: "rgba(37,99,235,.15)" },
-  History: { e: "🏛️", c: "#c2621a", s: "rgba(194,98,26,.15)" }
-};
-
-const PUZZLES = [
-  {id:"a1",c:"Animals",w:"PLATYPUS",k:"Platypus",q:"Egg-laying Australian mammal with a duck-like bill.",s:"The platypus is a semiaquatic, egg-laying mammal native to eastern Australia, famous for its duck-like bill and webbed feet.",f:["It hunts underwater with eyes closed by sensing tiny electrical signals.","Males have venomous spurs on their hind legs."],b:[["PLAY","Have fun"],["PLUS","Added together"],["PAST","Already happened"],["SLAP","Open-handed tap"],["LAPS","Track circuits"],["SALT","Sea seasoning"]]},
-  {id:"a2",c:"Animals",w:"DOLPHIN",k:"Dolphin",q:"Smart ocean mammal that leaps and uses clicks to navigate.",s:"Dolphins are highly social marine mammals that communicate with whistles and navigate with echolocation.",f:["They sleep with half their brain awake so they can keep breathing.","Each dolphin develops its own unique signature whistle."],b:[["LION","King of the savanna"],["HOLD","Grasp in hand"],["POND","Small still water"],["PLOD","Walk heavily"],["HIND","At the back"]]},
-  {id:"a3",c:"Animals",w:"GIRAFFE",k:"Giraffe",q:"Tallest land animal, reaching treetops with a spotted neck.",s:"Giraffes are tall African mammals and the tallest living land animals on Earth.",f:["They have the same number of neck bones as humans: seven!","Their purple-blue tongues can be 18 inches long."],b:[["GRIEF","Deep sorrow"],["FAIR","Just, or carnival"],["FEAR","Feeling afraid"],["FIRE","Hearth flames"],["GEAR","Equipment"],["RAGE","Fierce anger"]]},
-  {id:"a4",c:"Animals",w:"PENGUIN",k:"Penguin",q:"Tuxedo-patterned flightless bird built for icy seas.",s:"Penguins are aquatic flightless birds living almost exclusively in the Southern Hemisphere.",f:["Emperor penguins can hold their breath over 20 minutes.","Many propose to a mate by gifting a smooth pebble."],b:[["UNPIN","Remove fastener"],["NINE","After eight"],["PINE","Evergreen tree"],["PING","Ringing sound"],["PEN","Writing tool"]]},
-  {id:"a5",c:"Animals",w:"CHEETAH",k:"Cheetah",q:"Fastest land animal on Earth, sprinting over 60 mph.",s:"The cheetah is a large cat native to Africa and Iran, renowned as the fastest land mammal.",f:["Dark tear marks under its eyes block sunlight glare.","Cheetahs cannot roar—they purr and chirp like birds."],b:[["TEACH","Help learn"],["CHEAT","Break rules"],["EACH","Every one"],["HEAT","Warmth"],["HATE","Strong dislike"],["CHAT","Friendly talk"]]},
-  {id:"a6",c:"Animals",w:"OCTOPUS",k:"Octopus",q:"Clever eight-armed sea creature that changes color.",s:"Octopuses are soft-bodied eight-limbed mollusks known for problem-solving and camouflage.",f:["An octopus has three hearts and blue blood.","Two-thirds of its neurons are in its arms."],b:[["SCOUT","Explore ahead"],["SPOT","Round mark"],["STOP","Halt"],["POST","Mail or stake"],["COST","Price"],["SOUP","Warm broth"]]},
-  {id:"a7",c:"Animals",w:"GAZELLE",k:"Gazelle",q:"Graceful, swift antelope famous for high leaps.",s:"Gazelles are swift antelopes found across dry grasslands in Africa and Asia.",f:["High vertical jumps signal predators they are too fast to chase.","They can sprint in bursts up to 40 mph."],b:[["GLAZE","Shiny coating"],["EAGLE","Bird of prey"],["LEGAL","Allowed by law"],["GAZE","Look with wonder"],["GALE","Strong wind"]]},
-  {id:"a8",c:"Animals",w:"FLAMINGO",k:"Flamingo",q:"Tall pink wading bird that balances on one leg.",s:"Flamingos are wading birds known for long slender legs, curved bills, and pink plumage.",f:["They are born gray and turn pink from shrimp and algae pigments.","A group is called a 'flamboyance.'"],b:[["MANGO","Tropical fruit"],["GOAL","Aim or score"],["FOAM","Frothy bubbles"],["LONG","Extended"],["GAIN","Increase"],["LOAF","Baked bread"]]},
-  {id:"g1",c:"Geography",w:"EVEREST",k:"Mount Everest",q:"Earth's highest mountain above sea level.",s:"Mount Everest sits on the Nepal-Tibet border in the Himalayas, rising 29,031.7 feet.",f:["Known in Nepal as Sagarmatha and in Tibet as Chomolungma.","Tectonic plates still push it slightly higher each year."],b:[["VERSE","Line of poetry"],["SERVE","Assist or bring food"],["STEER","Guide a boat"],["REST","Relax"],["TREE","Woody plant"],["VEST","Sleeveless top"]]},
-  {id:"g2",c:"Geography",w:"TUNDRA",k:"Tundra",q:"Treeless polar biome with frozen subsoil year-round.",s:"The tundra is a cold, treeless biome in the Arctic and high mountains with permafrost.",f:["Arctic summer sun shines nearly 24 hours, sparking wildflowers.","The word means 'treeless upland.'"],b:[["DAUNT","Discourage"],["TURN","Change direction"],["AUNT","Parent's sister"],["DART","Small arrow"],["RANT","Speak passionately"]]},
-  {id:"g3",c:"Geography",w:"ICELAND",k:"Iceland",q:"Nordic island of glaciers, geysers, and volcanoes.",s:"Iceland is a volcanic island in the North Atlantic famed for glaciers and geothermal energy.",f:["Over 85% of homes are heated by natural geothermal water.","Iceland has no mosquitoes anywhere."],b:[["CANDLE","Wax and wick"],["CLEAN","Not dirty"],["DANCE","Move to music"],["LAND","Solid ground"],["LINE","Thin mark"],["DEAL","Bargain"]]},
-  {id:"g4",c:"Geography",w:"VOLCANO",k:"Volcano",q:"Opening in Earth's crust where lava and ash erupt.",s:"A volcano is a rupture in Earth's crust allowing hot magma, ash, and gases to escape.",f:["About 75% of active volcanoes lie along the Pacific Ring of Fire.","Volcanic ash creates ultra-fertile farmland."],b:[["VOCAL","Spoken aloud"],["COAL","Dark fuel"],["LOAN","Borrowed money"],["OVAL","Egg shape"],["COOL","Mildly cold"],["CLAN","Family group"]]},
-  {id:"g5",c:"Geography",w:"GLACIER",k:"Glacier",q:"Slow-moving river of dense, ancient compressed ice.",s:"Glaciers are massive rivers of dense ice flowing slowly downhill and carving valleys.",f:["Glaciers hold roughly 69% of Earth's freshwater.","Pure glacier ice glows blue by scattering blue light."],b:[["GRACE","Elegance"],["CLEAR","Easy to see"],["LARGE","Big in size"],["RACE","Speed contest"],["CARE","Kind attention"],["REAL","Genuine"]]},
-  {id:"g6",c:"Geography",w:"VENICE",k:"Venice",q:"Italian city of 100+ islands linked by canals and gondolas.",s:"Venice is a historic Italian lagoon city famous for winding canals and arched bridges.",f:["Over 400 bridges connect its 118 small islands.","Buildings rest on millions of centuries-old wooden pilings."],b:[["NIECE","Sibling's daughter"],["NICE","Pleasant"],["VINE","Grape plant"],["VEIN","Blood vessel"],["EVEN","Level or flat"]]},
-  {id:"g7",c:"Geography",w:"NIAGARA",k:"Niagara Falls",q:"Three thundering waterfalls between Ontario and New York.",s:"Niagara Falls is a trio of massive waterfalls on the Niagara River between Canada and the US.",f:["Up to 6 million cubic feet of water cascades over each minute.","It generates clean hydroelectric power for millions."],b:[["GRAIN","Wheat or oats"],["RAIN","Cloud drops"],["GAIN","Obtain"],["RING","Jewelry band"],["RANG","Past of ring"]]},
-  {id:"g8",c:"Geography",w:"CANYON",k:"Canyon",q:"Deep steep-walled gorge carved by a river over ages.",s:"A canyon is a deep gorge between cliffs carved by river erosion over millions of years.",f:["The Grand Canyon reveals nearly two billion years of rock layers.","Canyon floors can be 20°F warmer than the rim."],b:[["ANNOY","Bother mildly"],["CYAN","Greenish-blue"],["ANY","Whichever"],["CAN","Tin container"],["YON","Over there"]]},
-  {id:"h1",c:"History",w:"PYRAMID",k:"Egyptian pyramids",q:"Ancient Egyptian stone tombs built over 4,500 years ago.",s:"The Egyptian pyramids are monumental stone tombs built for pharaohs in ancient Egypt.",f:["The Great Pyramid was Earth's tallest structure for 3,800+ years.","Skilled, well-fed workers built them."],b:[["DAIRY","Milk & cheese"],["RAPID","Very fast"],["PAID","Settled bill"],["PRAY","Offer thanks"],["YARD","Lawn or 3 feet"],["ARMY","Military force"]]},
-  {id:"h2",c:"History",w:"VIKINGS",k:"Vikings",q:"Norse seafarers who sailed sleek longships from Scandinavia.",s:"Vikings were medieval Norse explorers and traders who sailed across Europe to North America.",f:["Leif Erikson reached North America ~500 years before Columbus.","Vikings bathed weekly and used carved combs."],b:[["KINGS","Monarchs"],["KING","Male monarch"],["SING","Make music"],["SKIN","Outer layer"],["SINK","Wash basin"],["SIGN","Posted notice"]]},
-  {id:"h3",c:"History",w:"POMPEII",k:"Pompeii",q:"Ancient Roman city preserved under Vesuvius ash in 79 AD.",s:"Pompeii was a Roman city buried by Mount Vesuvius in 79 AD, preserving daily Roman life.",f:["Bakeries were found with loaves of bread still inside ovens.","Vibrant frescoes and street signs survived."],b:[["PIPE","Hollow tube"],["POEM","Rhyming verse"],["POPE","Church leader"],["MIME","Silent actor"],["PIE","Baked pastry"]]},
-  {id:"h4",c:"History",w:"SPARTA",k:"Sparta",q:"Ancient Greek city-state famed for discipline and warriors.",s:"Sparta was a major Greek city-state celebrated for courage and its stand at Thermopylae.",f:["Spartan women owned property and had formal physical education.","Their brief wit gave us the word 'laconic.'"],b:[["APART","Separated"],["STRAP","Leather band"],["PART","A piece"],["STAR","Night sky light"],["TRAP","Catch device"],["PAST","Bygone times"]]},
-  {id:"h5",c:"History",w:"GALILEO",k:"Galileo Galilei",q:"Italian astronomer who discovered Jupiter's four largest moons.",s:"Galileo Galilei (1564–1642) pioneered telescopic astronomy and modern physics.",f:["In 1610 he spotted four moons orbiting Jupiter.","NASA's Galileo spacecraft was named for him."],b:[["AGILE","Quick & graceful"],["LEGAL","By law"],["GOAL","Target"],["GALE","Strong wind"],["GALL","Bold nerve"]]},
-  {id:"h6",c:"History",w:"CAESAR",k:"Julius Caesar",q:"Roman general who crossed the Rubicon and reshaped Rome.",s:"Julius Caesar was a Roman general and statesman whose reforms ushered in the Roman Empire.",f:["He introduced the 365-day Julian calendar with leap years.","The month of July is named after him."],b:[["SCARE","Frighten"],["CARE","Kind attention"],["RACE","Speed contest"],["SCAR","Healed mark"],["ACRE","Land measure"],["AREA","Region"]]},
-  {id:"h7",c:"History",w:"TITANIC",k:"Titanic",q:"Famous luxury ocean liner that struck an iceberg in 1912.",s:"RMS Titanic sank in the North Atlantic on April 15, 1912, during her maiden voyage.",f:["Her wreck was found in 1985 over two miles underwater.","She featured a heated pool and grand oak staircase."],b:[["ATTIC","Roof room"],["TAINT","Spoil slightly"],["TITAN","Giant"],["TINT","Subtle shade"],["ACT","Perform"]]},
-  {id:"h8",c:"History",w:"CASTLE",k:"Castle",q:"Medieval stone fortress with towers and drawbridges.",s:"Castles were fortified residences built across Europe and the Middle East in the Middle Ages.",f:["Spiral stairs wound clockwise going up to aid right-handed defenders.","Herbs were scattered on stone floors for scent."],b:[["SCALE","Climb or weigh"],["SLATE","Roof stone"],["TALE","Story"],["LATE","Past due"],["SALT","Food mineral"],["LAST","Final"]]}
-];
-
-const BONUS = new Set("ACT,AGE,AIR,ALL,ANT,ANY,APT,ARE,ARM,ART,ATE,AUNT,CAN,CAR,CAT,CHAT,COAT,CON,COOL,COST,CYAN,DART,DEAL,DIP,DRY,EACH,EAR,EAT,ERA,EVEN,FAIR,FEAR,FIRE,FOAM,GAIN,GALE,GALL,GAZE,GEAR,GOAL,GRAIN,GUN,HARP,HATE,HEAT,HIND,HIP,HOLD,ICE,INN,KING,LACE,LAND,LAP,LAPS,LAST,LATE,LAW,LAY,LAWN,LEAD,LEAF,LEAST,LINE,LION,LIP,LOAF,LOAN,LOG,LOOP,MAN,MAP,MAT,MIME,MOAN,MOP,NINE,NOD,OAR,OIL,OLD,OVAL,PAID,PAIR,PAL,PAR,PART,PAST,PAT,PATS,PAY,PEN,PIE,PIN,PINE,PING,PIPE,PLAN,PLAY,PLOD,PLUS,POEM,POLL,POND,POOL,POPE,POST,PRAY,PRO,PUN,RACE,RAGE,RAIN,RAN,RANG,RANT,RAP,RAT,RATS,RAW,REAL,REST,RICE,RING,ROAR,SALT,SAP,SAT,SCAR,SEA,SET,SIGN,SING,SINK,SKIN,SLAP,SLAY,SOUP,SPIN,SPOT,SPY,STAR,STAY,STOP,TAP,TAPS,TAR,TEA,TEAR,TIE,TIN,TINT,TON,TOP,TRAP,TREE,TURN,VAN,VEIN,VEST,VINE,WAR,WARN,WAY,WIN,YARD,YES,YET,YON,YOU,ZAP".split(","));
-
-const getLS = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch { return d; } };
-const getScrap = () => { try { const a = JSON.parse(localStorage.getItem("ww_scrapbook") || "[]"); return Array.isArray(a) ? a : []; } catch { return []; } };
-
-const state = {
-  stars: Number(getLS("ww_stars", "60")) || 60,
-  sound: getLS("ww_sound", "true") !== "false",
-  scrap: getScrap(),
-  deck: [], p: PUZZLES[0], letters: [], sel: [], solved: new Set(), bonus: new Set(), hints: {},
-  mainClue: false, slotClue: null, filter: "All"
-};
-
-let ctx = null, pDown = false, dragging = false, firstNode = null, wasLast = false, dragPt = null, bTimer = null;
-const $ = id => document.getElementById(id);
-
-function save() {
-  try {
-    localStorage.setItem("ww_stars", String(state.stars));
-    localStorage.setItem("ww_sound", String(state.sound));
-    localStorage.setItem("ww_scrapbook", JSON.stringify(state.scrap));
-  } catch {}
-  $("starsCount").textContent = state.stars;
-  $("scrapCount").textContent = state.scrap.length;
-  $("soundBtn").textContent = state.sound ? "🔊" : "🔇";
-}
-
-function tone(freq, dur = .09, vol = .12) {
-  if (!state.sound) return;
-  try {
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return;
-    if (!ctx) ctx = new AC();
-    if (ctx.state === "suspended") ctx.resume();
-    const o = ctx.createOscillator(), g = ctx.createGain();
-    o.frequency.value = freq;
-    g.gain.setValueAtTime(vol, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + dur);
-    o.connect(g); g.connect(ctx.destination);
-    o.start(); o.stop(ctx.currentTime + dur);
-  } catch {}
-}
-
-function chime(major) {
-  (major ? [523,659,784,1046] : [659,880]).forEach((f, i) => setTimeout(() => tone(f, .22, .11), i * 55));
-}
-
-function shuf(a) {
-  const r = a.slice();
-  for (let i = r.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [r[i], r[j]] = [r[j], r[i]]; }
-  return r;
-}
-
-function nextPuzzle() {
-  stopSpeech(); closeModals();
-  if (!state.deck.length) state.deck = shuf(PUZZLES.map(p => p.id).filter(id => id !== state.p.id));
-  const id = state.deck.shift();
-  state.p = PUZZLES.find(x => x.id === id) || PUZZLES[0];
-  state.letters = shuf(state.p.w.split(""));
-  if (state.letters.join("") === state.p.w) state.letters = shuf(state.letters);
-  state.sel = []; state.solved = new Set(); state.bonus = new Set(); state.hints = {};
-  state.mainClue = false; state.slotClue = null;
-  const t = CATS[state.p.c];
-  document.documentElement.style.setProperty("--accent", t.c);
-  document.documentElement.style.setProperty("--soft", t.s);
-  $("catBadge").textContent = t.e + " " + state.p.c;
-  $("clueBtn").textContent = "❓ Clue";
-  renderAll();
-}
-
-function renderAll() {
-  save(); renderClue(); renderBoard(); renderStatus(); renderWheel();
-  const done = state.solved.has(state.p.w);
-  $("viewFactBtn").style.display = done ? "inline-flex" : "none";
-  $("skipBtn").style.display = done ? "none" : "inline-flex";
-}
-
-function renderClue() {
-  const box = $("clueBox");
-  if (state.slotClue) {
-    $("clueTitle").textContent = "Word Clue (" + state.slotClue.w.length + " letters)";
-    $("clueText").textContent = state.slotClue.q;
-    box.classList.add("visible");
-  } else if (state.mainClue) {
-    $("clueTitle").textContent = "Topic Clue";
-    $("clueText").textContent = state.p.q;
-    box.classList.add("visible");
-  } else box.classList.remove("visible");
-}
-
-function makeTiles(word) {
-  const row = document.createElement("div"); row.className = "tiles-row";
-  const ok = state.solved.has(word), h = state.hints[word] || new Set();
-  for (let i = 0; i < word.length; i++) {
-    const t = document.createElement("div");
-    t.className = "tile" + (ok ? " solved" : "");
-    t.textContent = (ok || h.has(i)) ? word[i] : "";
-    row.appendChild(t);
-  }
-  return row;
-}
-
-function renderBoard() {
-  const b = $("board"), p = state.p, ok = state.solved.has(p.w);
-  b.innerHTML = "";
-  const fc = document.createElement("div");
-  fc.className = "featured-card" + (p.w.length >= 8 ? " long" : "");
-  const lbl = document.createElement("div"); lbl.className = "featured-label";
-  lbl.textContent = ok ? "✨ Discovery Unlocked — Tap for Photo & Facts" : "🔍 Featured Mystery Word";
-  fc.append(lbl, makeTiles(p.w));
-  fc.onclick = () => ok ? openDiscovery() : toggleSlot(p.w, p.q);
-  b.appendChild(fc);
-
-  const g = document.createElement("div"); g.className = "subgrid";
-  p.b.forEach(([w, q]) => {
-    const card = document.createElement("div");
-    card.className = "word-card" + (state.slotClue && state.slotClue.w === w ? " active-clue" : "");
-    card.appendChild(makeTiles(w));
-    card.onclick = () => { if (!state.solved.has(w)) toggleSlot(w, q); };
-    g.appendChild(card);
-  });
-  b.appendChild(g);
-}
-
-function toggleSlot(w, q) {
-  state.slotClue = (state.slotClue && state.slotClue.w === w) ? null : { w, q };
-  tone(587, .06, .08); renderClue(); renderBoard();
-}
-
-function renderStatus(msg = null, warn = false) {
-  const s = $("statusStrip"); s.innerHTML = "";
-  if (msg) {
-    const p = document.createElement("div"); p.className = "banner-pill" + (warn ? " warn" : "");
-    p.textContent = msg; s.appendChild(p); return;
-  }
-  const w = state.sel.map(i => state.letters[i]).join("");
-  if (w) {
-    const pill = document.createElement("div"); pill.className = "preview-pill";
-    const clr = document.createElement("button"); clr.className = "mini-btn mini-clear"; clr.textContent = "✕";
-    clr.onclick = () => { state.sel = []; renderStatus(); renderWheel(); };
-    const txt = document.createElement("span"); txt.className = "preview-letters"; txt.textContent = w;
-    const chk = document.createElement("button"); chk.className = "mini-btn mini-check"; chk.textContent = "Check";
-    chk.onclick = submitWord;
-    pill.append(clr, txt, chk); s.appendChild(pill);
-  } else {
-    s.innerHTML = '<div class="hint-text">Swipe or tap letters • Tap any row for a clue</div>';
-  }
-}
-
-function banner(m, warn = false) {
-  clearTimeout(bTimer); renderStatus(m, warn);
-  bTimer = setTimeout(() => renderStatus(), 2100);
-}
-
-function centers() {
-  return state.letters.map((_, i) => {
-    const a = (2 * Math.PI / state.letters.length) * i - Math.PI / 2;
-    return { x: 121 + Math.cos(a) * 84, y: 121 + Math.sin(a) * 84 };
-  });
-}
-
-function renderWheel() {
-  const w = $("wheel"), svg = $("wheelSvg"), cts = centers();
-  w.querySelectorAll(".letter-node").forEach(n => n.remove());
-  state.letters.forEach((ch, i) => {
-    const n = document.createElement("div");
-    n.className = "letter-node" + (state.sel.includes(i) ? " selected" : "");
-    n.textContent = ch; n.style.left = cts[i].x + "px"; n.style.top = cts[i].y + "px";
-    w.appendChild(n);
-  });
-  svg.innerHTML = "";
-  if (state.sel.length) {
-    const pts = state.sel.map(i => cts[i].x + "," + cts[i].y);
-    if (dragPt && dragging) pts.push(dragPt.x + "," + dragPt.y);
-    const poly = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
-    poly.setAttribute("points", pts.join(" ")); poly.setAttribute("fill", "none");
-    poly.setAttribute("stroke", CATS[state.p.c].c); poly.setAttribute("stroke-width", "9");
-    poly.setAttribute("stroke-linecap", "round"); poly.setAttribute("stroke-linejoin", "round");
-    svg.appendChild(poly);
-  }
-}
-
-function hitWheel(cx, cy) {
-  const r = $("wheel").getBoundingClientRect(), x = cx - r.left, y = cy - r.top;
-  dragPt = { x, y };
-  const cts = centers();
-  for (let i = 0; i < cts.length; i++) if (Math.hypot(x - cts[i].x, y - cts[i].y) <= 32) return i;
-  return null;
-}
-
-const wheelEl = $("wheel");
-wheelEl.addEventListener("pointerdown", e => {
-  if (e.target.closest("#shuffleBtn")) return;
-  e.preventDefault();
-  try { wheelEl.setPointerCapture(e.pointerId); } catch {}
-  pDown = true; dragging = false; firstNode = null; wasLast = false;
-  const hit = hitWheel(e.clientX, e.clientY);
-  if (hit !== null) {
-    firstNode = hit;
-    wasLast = state.sel.length && state.sel[state.sel.length - 1] === hit;
-    if (!state.sel.includes(hit)) {
-      state.sel.push(hit);
-      tone([523,587,659,698,784,880,988,1046][state.sel.length % 8]);
-      renderWheel(); renderStatus();
-    }
-  }
-});
-
-wheelEl.addEventListener("pointermove", e => {
-  if (!pDown) return;
-  const hit = hitWheel(e.clientX, e.clientY);
-  if (hit !== null) {
-    if (firstNode === null) firstNode = hit;
-    else if (hit !== firstNode) dragging = true;
-    if (dragging && state.sel.length >= 2 && hit === state.sel[state.sel.length - 2]) {
-      state.sel.pop(); tone(440);
-    } else if (!state.sel.includes(hit)) {
-      state.sel.push(hit);
-      tone([523,587,659,698,784,880,988,1046][state.sel.length % 8]);
-    }
-  }
-  renderWheel(); renderStatus();
-});
-
-function endPtr() {
-  if (!pDown) return;
-  pDown = false; dragPt = null;
-  if (dragging) { dragging = false; submitWord(); }
-  else { if (wasLast && state.sel.length) state.sel.pop(); renderWheel(); renderStatus(); }
-  firstNode = null; wasLast = false;
-}
-wheelEl.addEventListener("pointerup", endPtr);
-wheelEl.addEventListener("pointercancel", endPtr);
-
-function submitWord() {
-  const w = state.sel.map(i => state.letters[i]).join("");
-  state.sel = []; renderWheel();
-  if (w.length < 3) { if (w) { tone(230, .13); banner("Use at least 3 letters", true); } else renderStatus(); return; }
-  if (state.solved.has(w) || state.bonus.has(w)) { tone(250, .12); banner("Already found " + w + "!", true); return; }
-  const p = state.p;
-  if (w === p.w || p.b.some(x => x[0] === w)) {
-    state.solved.add(w);
-    if (state.slotClue && state.slotClue.w === w) state.slotClue = null;
-    const isF = w === p.w, pts = isF ? 15 : 5;
-    state.stars += pts;
-    const all = state.solved.has(p.w) && p.b.every(x => state.solved.has(x[0]));
-    if (all) state.stars += 10;
-    chime(isF || all); renderAll();
-    banner(isF ? "Discovered " + w + "! +" + pts + "⭐" : "Great! " + w + " +" + pts + "⭐");
-    if (isF || all) confetti();
-    if (isF) openDiscovery();
-    return;
-  }
-  if (BONUS.has(w)) { state.bonus.add(w); state.stars += 3; chime(false); save(); banner("Bonus Word: " + w + "! +3⭐"); return; }
-  tone(220, .14); banner("Not in word list", true);
-}
-
-function confetti() {
-  const cols = [CATS[state.p.c].c, "#f59e0b", "#ec4899", "#06b6d4"];
-  for (let i = 0; i < 18; i++) {
-    const d = document.createElement("div"); d.className = "confetti";
-    d.style.left = (15 + Math.random() * 70) + "vw"; d.style.top = (20 + Math.random() * 25) + "vh";
-    d.style.background = cols[i % 4]; document.body.appendChild(d);
-    setTimeout(() => d.remove(), 1300);
-  }
-}
-
-$("shuffleBtn").onclick = () => { state.sel = []; state.letters = shuf(state.letters); tone(587, .07); renderWheel(); renderStatus(); };
-$("clueBtn").onclick = () => { state.slotClue = null; state.mainClue = !state.mainClue; $("clueBtn").textContent = state.mainClue ? "❓ Hide Clue" : "❓ Clue"; tone(523, .06); renderClue(); };
-$("hintBtn").onclick = () => {
-  const p = state.p, w = [p.w, ...p.b.map(x => x[0])].find(x => !state.solved.has(x));
-  if (!w) return banner("All words solved!");
-  if (state.stars < 10) { state.stars += 30; save(); return banner("Gift Refill: +30⭐ added!"); }
-  if (!state.hints[w]) state.hints[w] = new Set();
-  const left = []; for (let i = 0; i < w.length; i++) if (!state.hints[w].has(i)) left.push(i);
-  if (left.length) {
-    state.stars -= 10; state.hints[w].add(left[Math.floor(Math.random() * left.length)]); tone(784, .1);
-    if (state.hints[w].size === w.length) { state.solved.add(w); if (w === p.w) openDiscovery(); }
-    renderAll();
-  }
-};
-$("nextBtn").onclick = nextPuzzle;
-$("skipBtn").onclick = nextPuzzle;
-$("viewFactBtn").onclick = () => openDiscovery();
-$("soundBtn").onclick = () => { state.sound = !state.sound; save(); };
-
-async function fetchFact(p) {
-  const ex = state.scrap.find(x => x.id === p.id);
-  if (ex && ex.img) return ex;
-  let d = null;
-  try {
-    const r = await fetch("https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(p.k.replace(/ /g, "_")));
-    if (r.ok) d = await r.json();
-  } catch {}
-  const item = {
-    id: p.id, c: p.c, w: p.w, title: (d && d.title) || p.k,
-    sub: (d && d.description) || p.c, sum: (d && d.extract) || p.s, facts: p.f,
-    img: (d && ((d.originalimage && d.originalimage.source) || (d.thumbnail && d.thumbnail.source))) || null,
-    url: (d && d.content_urls && d.content_urls.desktop && d.content_urls.desktop.page) || null
-  };
-  const i = state.scrap.findIndex(x => x.id === item.id);
-  if (i >= 0) state.scrap[i] = item; else state.scrap.unshift(item);
-  save(); return item;
-}
-
-async function openDiscovery(custom = null) {
-  stopSpeech();
-  const body = $("discoveryBody"), p = state.p;
-  const all = p && state.solved.has(p.w) && p.b.every(x => state.solved.has(x[0]));
-  $("finishWordsBtn").style.display = (custom || all) ? "none" : "block";
-  $("modalNextBtn").textContent = custom ? "Close" : "Next Topic →";
-  $("discoveryModal").classList.add("open");
-  body.innerHTML = '<p style="text-align:center;padding:40px 0;color:var(--muted);">Loading picture &amp; facts...</p>';
-
-  const item = custom || await fetchFact(p);
-  $("modalCatLabel").textContent = CATS[item.c].e + " " + item.c;
-  body.innerHTML = "";
-  const h2 = document.createElement("h2"); h2.style.cssText = "margin:0 0 4px;font-size:28px;"; h2.textContent = item.title;
-  const sub = document.createElement("div"); sub.style.cssText = "color:var(--muted);font-size:15px;text-transform:capitalize;margin-bottom:8px;"; sub.textContent = item.sub;
-  body.append(h2, sub);
-  if (item.img) { const img = document.createElement("img"); img.className = "discovery-img"; img.src = item.img; img.alt = item.title; body.appendChild(img); }
-  const sp = document.createElement("button"); sp.className = "speak-btn"; sp.textContent = "🔊 Read Facts Aloud";
-  sp.onclick = () => toggleSpeech(item.title + ". " + item.sum + " Did you know? " + item.facts.join(" "), sp);
-  const sum = document.createElement("p"); sum.style.cssText = "font-size:17px;line-height:1.5;margin:0 0 14px;"; sum.textContent = item.sum;
-  const box = document.createElement("div"); box.className = "facts-box";
-  box.innerHTML = "<h4>💡 Did You Know?</h4>";
-  const ul = document.createElement("ul"); item.facts.forEach(f => { const li = document.createElement("li"); li.textContent = f; ul.appendChild(li); });
-  box.appendChild(ul);
-  body.append(sp, sum, box);
-  if (item.url) { const a = document.createElement("a"); a.href = item.url; a.target = "_blank"; a.rel = "noopener"; a.style.cssText = "color:var(--accent);font-weight:700;font-size:15px;"; a.textContent = "Read full Wikipedia article ↗"; body.appendChild(a); }
-}
-
-function toggleSpeech(txt, btn) {
-  if (!("speechSynthesis" in window)) return;
-  if (window.speechSynthesis.speaking) { stopSpeech(); btn.textContent = "🔊 Read Facts Aloud"; return; }
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(txt); u.rate = .92;
-  u.onend = u.onerror = () => { btn.textContent = "🔊 Read Facts Aloud"; };
-  btn.textContent = "⏹ Stop Reading"; window.speechSynthesis.speak(u);
-}
-
-function stopSpeech() { try { if ("speechSynthesis" in window) window.speechSynthesis.cancel(); } catch {} }
-function closeModals() { stopSpeech(); $("discoveryModal").classList.remove("open"); $("scrapbookModal").classList.remove("open"); }
-
-$("closeDiscoveryBtn").onclick = closeModals;
-$("finishWordsBtn").onclick = closeModals;
-$("modalNextBtn").onclick = () => $("modalNextBtn").textContent === "Close" ? closeModals() : nextPuzzle();
-$("scrapbookBtn").onclick = () => { renderScrap(); $("scrapbookModal").classList.add("open"); };
-$("closeScrapbookBtn").onclick = closeModals;
-
-function renderScrap() {
-  const f = $("scrapFilters"), l = $("scrapList");
-  f.innerHTML = "";
-  ["All","Animals","Geography","History"].forEach(c => {
-    const cnt = c === "All" ? state.scrap.length : state.scrap.filter(x => x.c === c).length;
-    const b = document.createElement("button"); b.className = "filter-chip" + (state.filter === c ? " active" : "");
-    b.textContent = c + " (" + cnt + ")"; b.onclick = () => { state.filter = c; renderScrap(); };
-    f.appendChild(b);
-  });
-  const items = state.filter === "All" ? state.scrap : state.scrap.filter(x => x.c === state.filter);
-  l.innerHTML = "";
-  if (!items.length) { l.innerHTML = '<p style="text-align:center;color:var(--muted);padding:32px 12px;">Solve featured words to collect photos and facts here!</p>'; return; }
-  items.forEach(it => {
-    const row = document.createElement("div"); row.className = "scrap-item";
-    if (it.img) { const i = document.createElement("img"); i.className = "scrap-thumb"; i.src = it.img; row.appendChild(i); }
-    else { const d = document.createElement("div"); d.className = "scrap-thumb"; d.textContent = CATS[it.c].e; row.appendChild(d); }
-    const inf = document.createElement("div");
-    inf.innerHTML = `<div style="font-weight:800;font-size:17px;">${it.title}</div><div style="font-size:13px;font-weight:700;color:${CATS[it.c].c};">${it.c}</div><div style="font-size:13px;color:var(--muted);margin-top:2px;">${it.sum.slice(0,70)}...</div>`;
-    row.appendChild(inf);
-    row.onclick = () => { $("scrapbookModal").classList.remove("open"); openDiscovery(it); };
-    l.appendChild(row);
-  });
-}
-
-nextPuzzle();
-</script>
+<script src="js/data.js"></script>
+<script src="js/words.js"></script>
+<script src="js/logic.js"></script>
+<script src="js/game.js"></script>
 </body>
 </html>
