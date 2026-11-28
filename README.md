@@ -12,6 +12,9 @@ discover is kept in your Scrapbook.
 - **Hints (10⭐):** shows one letter of the word whose clue is open, or of the mystery word.
 - **Stars:** mystery word +15, other board words +5, finishing the board +10,
   bonus words +3, a right quiz answer +5.
+- **More of the same category:** once the mystery word is found, **More 🐾 →** (next to the
+  category) or the **More** button on the photo page gives a new topic from the same
+  category, new ones first. When every topic in it is discovered, it replays old ones.
 - **Progress:** the bar at the top counts how many of the topics you've discovered.
   New topics always come before ones you've already seen, and the game picks up
   where you left off if you close it.

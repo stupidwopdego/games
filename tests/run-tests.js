@@ -148,6 +148,24 @@ test("pickNext goes back to an unseen topic she skipped before repeating seen on
   check(L.pickNext(two, seen, [two[2].id, two[0].id], seeded(5)) === two[2].id, "should come back to the unseen one");
 });
 
+test("pickInCategory stays in the category, new topics first", function () {
+  var rand = seeded(9), cat = PUZZLES[0].cat;
+  var inCat = PUZZLES.filter(function (p) { return p.cat === cat; });
+  var seen = new Set(inCat.slice(0, inCat.length - 2).map(function (p) { return p.id; }));
+  var left = inCat.slice(-2).map(function (p) { return p.id; });
+  for (var i = 0; i < 40; i++) {
+    var id = L.pickInCategory(PUZZLES, cat, seen, [inCat[0].id], rand);
+    check(left.indexOf(id) >= 0, "picked " + id);
+  }
+  check(L.leftInCategory(PUZZLES, cat, seen) === 2, "two left");
+  var all = new Set(inCat.map(function (p) { return p.id; }));
+  check(L.leftInCategory(PUZZLES, cat, all) === 0, "none left");
+  for (var j = 0; j < 40; j++) {
+    var p2 = L.pickInCategory(PUZZLES, cat, all, [inCat[0].id], rand);
+    check(p2 !== inCat[0].id && inCat.some(function (p) { return p.id === p2; }), "replay stays in category, not current");
+  }
+});
+
 test("hintTarget helps with the word whose clue is open", function () {
   var p = PUZZLES[0], solved = new Set();
   check(L.hintTarget(p, solved, null) === p.word, "featured word first");

@@ -57,6 +57,17 @@ function pickNext(puzzles, seen, recent, rand) {
   return null;
 }
 
+// Next topic from the same category, undiscovered ones first.
+function pickInCategory(puzzles, cat, seen, recent, rand) {
+  var same = puzzles.filter(function (p) { return p.cat === cat; });
+  return same.length ? pickNext(same, seen, recent, rand) : pickNext(puzzles, seen, recent, rand);
+}
+
+// How many topics in a category are still undiscovered.
+function leftInCategory(puzzles, cat, seen) {
+  return puzzles.filter(function (p) { return p.cat === cat && !seen.has(p.id); }).length;
+}
+
 // Shuffle a copy of an array.
 function shuffled(a, rand) {
   rand = rand || Math.random;
@@ -98,6 +109,7 @@ function restoreRound(saved, puzzles) {
 var WWLogic = {
   letterCounts: letterCounts, canSpell: canSpell, boardWords: boardWords,
   isComplete: isComplete, hintTarget: hintTarget, pickNext: pickNext,
+  pickInCategory: pickInCategory, leftInCategory: leftInCategory,
   shuffled: shuffled, quizChoices: quizChoices, restoreRound: restoreRound
 };
 if (typeof module !== "undefined") module.exports = WWLogic;
