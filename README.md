@@ -8,7 +8,7 @@ discover is kept in your Scrapbook.
 ## Playing
 
 - **Find words:** swipe across the letters, or tap them one by one and press **Check**.
-- **Clues:** tap any word on the board to see its clue, or press **❓ Clue** for the mystery word.
+- **Clues:** tap any word on the board to see its clue, or press **❓ Clue** for the mystery word. Board-word clues tie back to the topic, and they say "(mystery word)" until you have found it.
 - **Hints (10⭐):** shows one letter of the word whose clue is open, or of the mystery word.
 - **Stars:** mystery word +15, other board words +5, finishing the board +10,
   bonus words +3, a right quiz answer +5.
